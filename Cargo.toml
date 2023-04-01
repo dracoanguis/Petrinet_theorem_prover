@@ -1,5 +1,5 @@
 [package]
-name = "rust_bachelor"
+name = "petrinet_theorem_prover"
 version = "0.1.0"
 edition = "2021"
 

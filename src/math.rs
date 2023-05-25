@@ -67,6 +67,51 @@ impl Matrix {
         self.rows -= 1;
     }
 
+    pub fn farkas(&self) -> Matrix {
+
+    let n_col = self.cols;
+    let n_row = self.rows;
+
+    let mut d = self.augment(Matrix::identity(n_row));
+
+    // println!("{}",d);
+
+    for col in 0..n_col {
+        let c_row = d.rows;
+
+        for f_row in  0..c_row {
+
+            let d_1 = d.index(f_row, col);
+
+            if d_1 == 0 {
+                continue;
+            }
+
+            for s_row in f_row..c_row {
+                let d_2 = d.index(s_row, col);
+                if d_2 == 0 {
+                    continue;
+                }
+                if d_1.signum() != d_2.signum() {
+                    let mut new_line = add_vectors(&mul_number_vector(d_2.abs(), &d.data[f_row]),&mul_number_vector(d_1.abs(), &d.data[s_row]));
+                    new_line = div_number_vector(gcd_vec(&new_line), &new_line);
+                    // println!("{}:{} with {} result {:?}",col,f_row,s_row,new_line);
+                    d.append_row(new_line);
+                }
+            }
+        }
+
+
+        for row in (0..c_row).rev() {
+            if d.index(row, col) != 0 {
+                d.remove_row(row);
+            }
+        }
+    }
+
+    d
+}
+
 }
 
 // Without taking ownership
@@ -175,47 +220,3 @@ fn gcd(a:usize, b:usize) -> usize {
     return gcd(a,b.abs_diff(a)>>1);
 }
 
-pub fn farkas(incidence_matrix: &Matrix) -> Matrix {
-
-    let n_col = incidence_matrix.cols;
-    let n_row = incidence_matrix.rows;
-
-    let mut d = incidence_matrix.augment(Matrix::identity(n_row));
-
-    // println!("{}",d);
-
-    for col in 0..n_col {
-        let c_row = d.rows;
-
-        for f_row in  0..c_row {
-
-            let d_1 = d.index(f_row, col);
-
-            if d_1 == 0 {
-                continue;
-            }
-
-            for s_row in f_row..c_row {
-                let d_2 = d.index(s_row, col);
-                if d_2 == 0 {
-                    continue;
-                }
-                if d_1.signum() != d_2.signum() {
-                    let mut new_line = add_vectors(&mul_number_vector(d_2.abs(), &d.data[f_row]),&mul_number_vector(d_1.abs(), &d.data[s_row]));
-                    new_line = div_number_vector(gcd_vec(&new_line), &new_line);
-                    // println!("{}:{} with {} result {:?}",col,f_row,s_row,new_line);
-                    d.append_row(new_line);
-                }
-            }
-        }
-
-
-        for row in (0..c_row).rev() {
-            if d.index(row, col) != 0 {
-                d.remove_row(row);
-            }
-        }
-    }
-
-    d
-}

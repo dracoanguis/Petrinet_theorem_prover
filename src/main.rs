@@ -3,9 +3,10 @@ mod math;
 mod petrinet;
 
 use crate::petrinet::*;
+use crate::math::Matrix;
 
-fn main() {
 
+fn test_petri() {
     let places = vec![
         Place::new_without_comment(String::from("p1")),
         Place::new_without_comment(String::from("p2"))
@@ -37,5 +38,29 @@ fn main() {
     println!("{}",pet.in_matrix);
     println!("{}",pet.out_matrix);
     println!("{}",pet.incidence_matrix);
+    println!("{:?}",pet.invariants);
+}
+
+fn test_farkas() {
+    let m = Matrix::from(
+        vec![
+            // vec![-1,1,1,-1],
+            // vec![1,-1,-1,1],
+            // vec![0,0,1,0],
+            // vec![1,0,0,-1],
+            // vec![-1,0,0,1]
+            vec![-1,1],
+            vec![1,-1],
+            vec![1,-1]
+        ]
+    );
+    let m2 = &m+&m;
+    println!("{}",m);
+
+}
+
+fn main() {
+    // test_petri();
+    test_farkas();
 }
 

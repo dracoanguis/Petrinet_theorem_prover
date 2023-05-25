@@ -35,6 +35,10 @@ impl Matrix {
         Matrix { rows, cols, data}
     }
 
+    pub fn get_data(&self) -> Vec<Vec<isize>> {
+        self.data.iter().map(|l| l.clone()).collect()
+    }
+
     pub fn augment(&self, rhs:Matrix) -> Matrix {
         if self.rows != rhs.rows {
             panic!("Trying to augment matrix with wrong size")
@@ -57,6 +61,10 @@ impl Matrix {
         self.data[row][col]
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.rows == 0 || self.cols == 0
+    }
+
     fn append_row(&mut self,line:Vec<isize>) {
         self.data.push(line);
         self.rows += 1;
@@ -67,50 +75,60 @@ impl Matrix {
         self.rows -= 1;
     }
 
-    pub fn farkas(&self) -> Matrix {
-
-    let n_col = self.cols;
-    let n_row = self.rows;
-
-    let mut d = self.augment(Matrix::identity(n_row));
-
-    // println!("{}",d);
-
-    for col in 0..n_col {
-        let c_row = d.rows;
-
-        for f_row in  0..c_row {
-
-            let d_1 = d.index(f_row, col);
-
-            if d_1 == 0 {
-                continue;
-            }
-
-            for s_row in f_row..c_row {
-                let d_2 = d.index(s_row, col);
-                if d_2 == 0 {
-                    continue;
-                }
-                if d_1.signum() != d_2.signum() {
-                    let mut new_line = add_vectors(&mul_number_vector(d_2.abs(), &d.data[f_row]),&mul_number_vector(d_1.abs(), &d.data[s_row]));
-                    new_line = div_number_vector(gcd_vec(&new_line), &new_line);
-                    // println!("{}:{} with {} result {:?}",col,f_row,s_row,new_line);
-                    d.append_row(new_line);
-                }
-            }
-        }
-
-
-        for row in (0..c_row).rev() {
-            if d.index(row, col) != 0 {
-                d.remove_row(row);
-            }
-        }
+    fn truncate_col(&mut self,n_col:usize) {
+        self.data.iter_mut().for_each(|l| {l.rotate_right(n_col+1); l.truncate(self.cols-n_col+1)});
+        self.cols -= n_col;
     }
 
-    d
-}
+    pub fn farkas(&self) -> Option<Matrix> {
+
+        let n_col = self.cols;
+        let n_row = self.rows;
+
+        let mut d = self.augment(Matrix::identity(n_row));
+
+        // println!("{}",d);
+
+        for col in 0..n_col {
+            let c_row = d.rows;
+
+            for f_row in  0..c_row {
+
+                let d_1 = d.index(f_row, col);
+
+                if d_1 == 0 {
+                    continue;
+                }
+
+                for s_row in f_row..c_row {
+                    let d_2 = d.index(s_row, col);
+                    if d_2 == 0 {
+                        continue;
+                    }
+                    if d_1.signum() != d_2.signum() {
+                        let mut new_line = add_vectors(&mul_number_vector(d_2.abs(), &d.data[f_row]),&mul_number_vector(d_1.abs(), &d.data[s_row]));
+                        new_line = div_number_vector(gcd_vec(&new_line), &new_line);
+                        // println!("{}:{} with {} result {:?}",col,f_row,s_row,new_line);
+                        d.append_row(new_line);
+                    }
+                }
+            }
+
+
+            for row in (0..c_row).rev() {
+                if d.index(row, col) != 0 {
+                    d.remove_row(row);
+                }
+            }
+            // println!("{}",d);
+        }
+
+        d.truncate_col(n_col);
+        if d.is_empty() {
+            return None;
+        }
+        Some(d)
+    }
 
 }
 
@@ -123,7 +141,7 @@ impl ops::Add<&Matrix> for &Matrix {
             panic!("Trying to add Matrix of different size")
         }
 
-        // Hell line going brrr
+        // Hell line going brrr in other words iterate over the matrice vectors to add vector by vector, an add them using the same method
         let new_data = self.data.iter().zip(rhs.data.iter()).map(|(l,r)| l.iter().zip(r.iter()).map(|(&l,&r)| l+r ).collect()).collect();
         
 
@@ -139,8 +157,12 @@ impl ops::Sub<&Matrix> for &Matrix {
             panic!("Trying to add Matrix of different size")
         }
 
-        // Hell line going brrr
-        let new_data = self.data.iter().zip(rhs.data.iter()).map(|(l,r)| l.iter().zip(r.iter()).map(|(&l,&r)| l-r ).collect()).collect();
+        // Hell line going brrr, same as above but for substraction
+        let new_data = self.data.iter().zip(rhs.data.iter())
+            .map(|(l,r)| l.iter().zip(r.iter())
+                .map(|(&l,&r)| l-r )
+                .collect())
+            .collect();
         
         Matrix {rows:self.rows,cols:self.cols,data:new_data}
     }
@@ -165,6 +187,7 @@ impl ops::Sub<Matrix> for Matrix {
 
 impl std::fmt::Display for Matrix {
     fn fmt(&self,f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        // write!(f,"rows:{} cols:{}\n",self.rows,self.cols)?;
         for line in &self.data {
             write!(f,"{:?}\n",line)?
         }

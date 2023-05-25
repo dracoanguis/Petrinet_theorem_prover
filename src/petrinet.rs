@@ -1,6 +1,5 @@
 //! Petrinet module
 
-
 use crate::math::Matrix;
 
 #[derive(Debug)]
@@ -8,7 +7,6 @@ pub struct Place {
     name: String,
     comment: String
 }
-
 
 #[derive(Debug)]
 pub struct Transition {
@@ -33,7 +31,21 @@ pub struct Petrinet<'a> {
 
     pub in_matrix: Matrix,
     pub out_matrix: Matrix,
-    pub incidence_matrix: Matrix
+    pub incidence_matrix: Matrix,
+    pub invariants: Option<Vec<Vec<isize>>>
+}
+
+type Marking<'a> = Vec<(&'a Place,usize)>;
+
+pub struct InstanciedInvariant<'a> {
+    
+}
+
+pub struct InstanciedPetrinet<'a> {
+    petrinet: &'a Petrinet<'a>,
+    marking: Marking<'a>,
+    i_invariants:
+
 }
 
 
@@ -51,6 +63,12 @@ impl Place {
 impl PartialEq for Place {
     fn eq(&self, other: &Self) -> bool {
         self.name.eq(&other.name)
+    }
+}
+
+impl PartialEq<str> for &Place {
+    fn eq(&self, other: &str) -> bool {
+        self.name.eq(other)
     }
 }
 
@@ -95,8 +113,8 @@ impl<'a> Petrinet<'a> {
 
             for t in transitions {
 
-                let out_arc = pre_arcs.iter().find(|f| f.is_from(p, t));
-                let in_arc = post_arcs.iter().find(|f| f.is_from(p, t));
+                let in_arc = pre_arcs.iter().find(|f| f.is_from(p, t));
+                let out_arc = post_arcs.iter().find(|f| f.is_from(p, t));
 
                 if let Some(i) = in_arc {
                     in_line.push(i.cost_or_gain);
@@ -117,10 +135,33 @@ impl<'a> Petrinet<'a> {
         let in_matrix = Matrix::from(in_vec);
         let out_matrix = Matrix::from(out_vec);
 
-        let incidence_matrix = &in_matrix - &out_matrix;
+        let incidence_matrix = &out_matrix - &in_matrix;
+
+        let invariants = incidence_matrix
+            .farkas()
+            .and_then(|i| Some(i.get_data()) );
 
         Petrinet { name, places, transitions, pre_arcs, post_arcs,
-            in_matrix, out_matrix, incidence_matrix
+            in_matrix, out_matrix, incidence_matrix,
+            invariants
         }
     }
+
+    pub fn new_marking(&self,marking:Vec<(&str,usize)>) -> Option<Marking> {
+        
+        let mut r_m:Marking = Vec::new();
+        r_m.reserve(marking.len());
+        
+        for (s,u) in marking {
+            if let Some(p) = self.places.iter().find(|p| p.eq(s)) {
+                r_m.push((p,u));
+            } else {
+                return None;
+            }
+        }
+         
+        Some(r_m)
+    }
+
 }
+

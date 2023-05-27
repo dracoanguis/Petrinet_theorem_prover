@@ -5,13 +5,13 @@ use crate::math::Matrix;
 #[derive(Debug)]
 pub struct Place {
     name: String,
-    comment: String
+    comment: String,
 }
 
 #[derive(Debug)]
 pub struct Transition {
     name: String,
-    comment: String
+    comment: String,
 }
 
 #[derive(Debug)]
@@ -32,31 +32,27 @@ pub struct Petrinet<'a> {
     pub in_matrix: Matrix,
     pub out_matrix: Matrix,
     pub incidence_matrix: Matrix,
-    pub invariants: Option<Vec<Vec<isize>>>
+    pub invariants: Option<Vec<Vec<isize>>>,
 }
 
-type Marking<'a> = Vec<(&'a Place,usize)>;
+type Marking<'a> = Vec<(&'a Place, usize)>;
 
-pub struct InstanciedInvariant<'a> {
-    
-}
+pub struct InstanciedInvariant<'a> {}
 
 pub struct InstanciedPetrinet<'a> {
     petrinet: &'a Petrinet<'a>,
     marking: Marking<'a>,
-    i_invariants:
-
+    i_invariants: InstanciedInvariant<'a>,
 }
 
-
 impl Place {
-    pub fn new(name:String,comment:String) -> Self {
+    pub fn new(name: String, comment: String) -> Self {
         Place { name, comment }
     }
 
-    pub fn new_without_comment(name:String) -> Self {
+    pub fn new_without_comment(name: String) -> Self {
         let comment = String::new();
-        Place { name, comment}
+        Place { name, comment }
     }
 }
 
@@ -73,13 +69,13 @@ impl PartialEq<str> for &Place {
 }
 
 impl Transition {
-    pub fn new(name:String,comment:String) -> Self {
+    pub fn new(name: String, comment: String) -> Self {
         Transition { name, comment }
     }
 
-    pub fn new_without_comment(name:String) -> Self {
+    pub fn new_without_comment(name: String) -> Self {
         let comment = String::new();
-        Transition { name, comment}
+        Transition { name, comment }
     }
 }
 
@@ -90,29 +86,36 @@ impl PartialEq for Transition {
 }
 
 impl<'a> Arc<'a> {
-
-    pub fn new(place:&'a Place,transition:&'a Transition,cost_or_gain:isize) -> Self {
-        Arc { place, cost_or_gain, transition}
+    pub fn new(place: &'a Place, transition: &'a Transition, cost_or_gain: isize) -> Self {
+        Arc {
+            place,
+            cost_or_gain,
+            transition,
+        }
     }
 
-    pub fn is_from(&self,place:&Place,transition:&Transition) -> bool {
-        self.place == place && self.transition == transition 
+    pub fn is_from(&self, place: &Place, transition: &Transition) -> bool {
+        self.place == place && self.transition == transition
     }
-
 }
 
 impl<'a> Petrinet<'a> {
-    pub fn new(name:String,places:&'a Vec<Place>,transitions:&'a Vec<Transition>, pre_arcs: Vec<Arc<'a>>, post_arcs: Vec<Arc<'a>>) -> Self {
+    pub fn new(
+        name: String,
+        places: &'a Vec<Place>,
+        transitions: &'a Vec<Transition>,
+        pre_arcs: Vec<Arc<'a>>,
+        post_arcs: Vec<Arc<'a>>,
+    ) -> Self {
         
         let mut in_vec: Vec<Vec<isize>> = Vec::new();
         let mut out_vec: Vec<Vec<isize>> = Vec::new();
 
         for p in places {
-            let mut in_line:Vec<isize> = Vec::new();
-            let mut out_line:Vec<isize> = Vec::new(); 
+            let mut in_line: Vec<isize> = Vec::new();
+            let mut out_line: Vec<isize> = Vec::new();
 
             for t in transitions {
-
                 let in_arc = pre_arcs.iter().find(|f| f.is_from(p, t));
                 let out_arc = post_arcs.iter().find(|f| f.is_from(p, t));
 
@@ -137,31 +140,33 @@ impl<'a> Petrinet<'a> {
 
         let incidence_matrix = &out_matrix - &in_matrix;
 
-        let invariants = incidence_matrix
-            .farkas()
-            .and_then(|i| Some(i.get_data()) );
+        let invariants = incidence_matrix.farkas().and_then(|i| Some(i.get_data()));
 
-        Petrinet { name, places, transitions, pre_arcs, post_arcs,
-            in_matrix, out_matrix, incidence_matrix,
-            invariants
+        Petrinet {
+            name,
+            places,
+            transitions,
+            pre_arcs,
+            post_arcs,
+            in_matrix,
+            out_matrix,
+            incidence_matrix,
+            invariants,
         }
     }
 
-    pub fn new_marking(&self,marking:Vec<(&str,usize)>) -> Option<Marking> {
-        
-        let mut r_m:Marking = Vec::new();
+    pub fn new_marking(&self, marking: Vec<(&str, usize)>) -> Option<Marking> {
+        let mut r_m: Marking = Vec::new();
         r_m.reserve(marking.len());
-        
-        for (s,u) in marking {
+
+        for (s, u) in marking {
             if let Some(p) = self.places.iter().find(|p| p.eq(s)) {
-                r_m.push((p,u));
+                r_m.push((p, u));
             } else {
                 return None;
             }
         }
-         
+
         Some(r_m)
     }
-
 }
-

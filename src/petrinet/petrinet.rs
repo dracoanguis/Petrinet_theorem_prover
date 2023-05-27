@@ -1,25 +1,7 @@
 //! Petrinet module
 
+use super::arc::*;
 use crate::math::Matrix;
-
-#[derive(Debug)]
-pub struct Place {
-    name: String,
-    comment: String,
-}
-
-#[derive(Debug)]
-pub struct Transition {
-    name: String,
-    comment: String,
-}
-
-#[derive(Debug)]
-pub struct Arc<'a> {
-    place: &'a Place,
-    cost_or_gain: isize,
-    transition: &'a Transition,
-}
 
 #[derive(Debug)]
 pub struct Petrinet<'a> {
@@ -35,69 +17,7 @@ pub struct Petrinet<'a> {
     pub invariants: Option<Vec<Vec<isize>>>,
 }
 
-type Marking<'a> = Vec<(&'a Place, usize)>;
-
-pub struct InstanciedInvariant<'a> {}
-
-pub struct InstanciedPetrinet<'a> {
-    petrinet: &'a Petrinet<'a>,
-    marking: Marking<'a>,
-    i_invariants: InstanciedInvariant<'a>,
-}
-
-impl Place {
-    pub fn new(name: String, comment: String) -> Self {
-        Place { name, comment }
-    }
-
-    pub fn new_without_comment(name: String) -> Self {
-        let comment = String::new();
-        Place { name, comment }
-    }
-}
-
-impl PartialEq for Place {
-    fn eq(&self, other: &Self) -> bool {
-        self.name.eq(&other.name)
-    }
-}
-
-impl PartialEq<str> for &Place {
-    fn eq(&self, other: &str) -> bool {
-        self.name.eq(other)
-    }
-}
-
-impl Transition {
-    pub fn new(name: String, comment: String) -> Self {
-        Transition { name, comment }
-    }
-
-    pub fn new_without_comment(name: String) -> Self {
-        let comment = String::new();
-        Transition { name, comment }
-    }
-}
-
-impl PartialEq for Transition {
-    fn eq(&self, other: &Self) -> bool {
-        self.name.eq(&other.name)
-    }
-}
-
-impl<'a> Arc<'a> {
-    pub fn new(place: &'a Place, transition: &'a Transition, cost_or_gain: isize) -> Self {
-        Arc {
-            place,
-            cost_or_gain,
-            transition,
-        }
-    }
-
-    pub fn is_from(&self, place: &Place, transition: &Transition) -> bool {
-        self.place == place && self.transition == transition
-    }
-}
+pub type Marking<'a> = Vec<(&'a Place, usize)>;
 
 impl<'a> Petrinet<'a> {
     pub fn new(
@@ -107,7 +27,6 @@ impl<'a> Petrinet<'a> {
         pre_arcs: Vec<Arc<'a>>,
         post_arcs: Vec<Arc<'a>>,
     ) -> Self {
-        
         let mut in_vec: Vec<Vec<isize>> = Vec::new();
         let mut out_vec: Vec<Vec<isize>> = Vec::new();
 

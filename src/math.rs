@@ -83,7 +83,7 @@ impl Matrix {
             l.rotate_right(n_col + 1);
             l.truncate(self.cols - n_col + 1)
         });
-        self.cols -= n_col;
+        self.cols -= n_col-1;
     }
 
     pub fn farkas(&self) -> Option<Matrix> {
@@ -213,15 +213,24 @@ impl std::fmt::Display for Matrix {
     }
 }
 
-pub fn mul_number_vector(multiplier: isize, multiplied: &Vec<isize>) -> Vec<isize> {
+impl PartialEq for Matrix {
+    fn eq(&self, other: &Self) -> bool {
+        (self - other)
+            .data
+            .iter()
+            .all(|l| l.iter().all(|e| e.eq(&0)))
+    }
+}
+
+fn mul_number_vector(multiplier: isize, multiplied: &Vec<isize>) -> Vec<isize> {
     multiplied.iter().map(|r| multiplier * r).collect()
 }
 
-pub fn div_number_vector(divisor: isize, divided: &Vec<isize>) -> Vec<isize> {
+fn div_number_vector(divisor: isize, divided: &Vec<isize>) -> Vec<isize> {
     divided.iter().map(|r| r / divisor).collect()
 }
 
-pub fn add_vectors(l: &Vec<isize>, r: &Vec<isize>) -> Vec<isize> {
+fn add_vectors(l: &Vec<isize>, r: &Vec<isize>) -> Vec<isize> {
     l.iter().zip(r.iter()).map(|(&l, &r)| l + r).collect()
 }
 
@@ -255,4 +264,18 @@ fn gcd(a: usize, b: usize) -> usize {
         return gcd(a.abs_diff(b) >> 1, b);
     }
     return gcd(a, b.abs_diff(a) >> 1);
+}
+
+#[cfg(test)]
+
+mod test {
+
+    use super::*;
+
+    #[test]
+    fn test_farkas_exist() {
+        let m = Matrix::from(vec![vec![-1, 1], vec![1, -1], vec![1, -1]]);
+        let m2 = Matrix::from(vec![vec![1,1,0], vec![1,0,1]]);
+        assert_eq!(m.farkas(), Some(m2));
+    }
 }

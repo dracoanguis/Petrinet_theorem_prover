@@ -17,6 +17,17 @@ impl ops::Mul<&Vector> for isize {
     }
 }
 
+impl ops::Mul for &Vector {
+    type Output = Vector;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Vector {
+            data: rhs.data.iter().zip(rhs.data.iter()).map(|(l,r)| l*r).collect()
+        }
+    }
+
+}
+
 impl ops::Div<isize> for &Vector {
     type Output = Vector;
 
@@ -75,6 +86,7 @@ impl From<&Vec<isize>> for Vector {
     }
 }
 
+
 impl Into<Vec<isize>> for Vector {
     fn into(self) -> Vec<isize> {
         self.data
@@ -118,6 +130,10 @@ impl Vector {
 
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+
+    pub fn sum(&self) -> isize {
+        self.data.iter().sum()
     }
 
     pub fn index(&self, a: usize) -> isize {

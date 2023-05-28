@@ -1,3 +1,5 @@
 pub mod arc;
-mod instancied;
 pub mod petrinet;
+
+mod instancied;
+mod invariant;

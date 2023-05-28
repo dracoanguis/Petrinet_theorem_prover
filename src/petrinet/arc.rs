@@ -1,5 +1,7 @@
 //! Base for petrinets
 
+use std::hash::Hash;
+
 #[derive(Debug)]
 pub struct Place {
     name: String,
@@ -42,9 +44,23 @@ impl PartialEq<str> for &Place {
     }
 }
 
+impl PartialEq<Place> for &Place {
+    fn eq(&self, other: &Place) -> bool {
+        self.name.eq(&other.name)
+    }
+}
+
+impl Eq for Place {}
+
 impl From<&str> for Place {
     fn from(s: &str) -> Self {
         Place { name: s.to_string(), comment: String::new() }
+    }
+}
+
+impl Hash for Place {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
     }
 }
 
@@ -68,6 +84,12 @@ impl PartialEq for Transition {
 impl From<&str> for Transition {
     fn from(s: &str) -> Self {
         Transition { name: s.to_string(), comment: String::new() }
+    }
+}
+
+impl Hash for Transition {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
     }
 }
 

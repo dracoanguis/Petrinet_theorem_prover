@@ -1,8 +1,13 @@
 //! Petrinet module
 
+use std::collections::HashMap;
+
 use super::arc::*;
-use crate::math::matrix::Matrix;
-use crate::math::vector::Vector;
+use super::invariant::*;
+
+use crate::math::Matrix;
+
+
 
 #[derive(Debug)]
 pub struct Petrinet<'a> {
@@ -15,10 +20,17 @@ pub struct Petrinet<'a> {
     pub in_matrix: Matrix,
     pub out_matrix: Matrix,
     pub incidence_matrix: Matrix,
-    pub invariants: Option<Vec<Vec<isize>>>,
+    pub invariants: Option<Vec<Invariant<'a>>>,
 }
 
-pub type Marking<'a> = Vec<(&'a Place, usize)>;
+pub type Marking<'a> = HashMap<&'a Place,usize>;
+
+#[derive(Debug)]
+pub struct InstanciedPetrinet<'a> {
+    petrinet: &'a Petrinet<'a>,
+    marking: Marking<'a>,
+    i_invariants: Option<Vec<InstanciedInvariant<'a>>>,
+}
 
 impl<'a> Petrinet<'a> {
     pub fn new(
@@ -60,7 +72,14 @@ impl<'a> Petrinet<'a> {
 
         let incidence_matrix = &out_matrix - &in_matrix;
 
-        let invariants = incidence_matrix.farkas().and_then(|i| Some(i.into()));
+        let invariants = incidence_matrix
+            .farkas()
+            .and_then(|i| Some(
+                    i.get_vectors()
+                    .into_iter()
+                    .map(|v| Invariant::new(places,v) )
+                    .collect()
+                ));
 
         Petrinet {
             name,
@@ -76,17 +95,40 @@ impl<'a> Petrinet<'a> {
     }
 
     pub fn new_marking(&self, marking: Vec<(&str, usize)>) -> Option<Marking> {
-        let mut r_m: Marking = Vec::new();
-        r_m.reserve(marking.len());
+        let mut r_m: Marking = HashMap::new();
 
         for (s, u) in marking {
-            if let Some(p) = self.places.iter().find(|p| p.eq(s)) {
-                r_m.push((p, u));
+            if let Some(p) = self.places.iter().find(|p| p==s) {
+                r_m.insert(p, u);
             } else {
                 return None;
             }
         }
-
         Some(r_m)
     }
+
+    pub fn instanciate(&'a self, marking: Marking<'a>) -> InstanciedPetrinet<'a> {
+        InstanciedPetrinet::new(self, marking)
+    }
+
+}
+
+impl<'a> InstanciedPetrinet<'a> {
+
+    pub fn new(petrinet: &'a Petrinet, marking: Marking<'a>) -> Self {
+
+        match &petrinet.invariants {
+            Some(invs) => {
+                let i_invariants = Some(invs.iter()
+                    .map(|v| v.instanciate(&marking))
+                    .collect());
+                InstanciedPetrinet {petrinet, marking, i_invariants}
+            },
+            None => {
+                InstanciedPetrinet {petrinet, marking, i_invariants: None }
+            }
+        }
+
+    }
+
 }

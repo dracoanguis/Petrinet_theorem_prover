@@ -1,9 +1,10 @@
 mod math;
 mod petrinet;
 
-use crate::math::matrix::Matrix;
 use crate::petrinet::arc::*;
 use crate::petrinet::petrinet::*;
+
+use math::Matrix;
 
 fn test_petri() {
     let places = vec![

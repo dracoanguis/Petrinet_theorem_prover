@@ -59,9 +59,7 @@ impl ops::Sub for &Vector {
 
 impl PartialEq for Vector {
     fn eq(&self, other: &Self) -> bool {
-        self.data.iter()
-            .zip(other.data.iter())
-            .all(|(l,r)|  l==r)
+        self.len() == other.len() && self.data.iter().zip(other.data.iter()).all(|(l, r)| l == r)
     }
 }
 
@@ -150,7 +148,7 @@ fn gcd(a: usize, b: usize) -> usize {
 
 #[cfg(test)]
 mod test {
-    
+
     use super::*;
 
     #[test]
@@ -162,10 +160,10 @@ mod test {
 
     #[test]
     fn test_add() {
-        let v = Vector::from(vec![1,2,3]);
-        let v2 = Vector::from(vec![3,2,1]);
-        let r = &v+&v2;
-        assert_eq!(r,Vector::from(vec![4,4,4]));
+        let v = Vector::from(vec![1, 2, 3]);
+        let v2 = Vector::from(vec![3, 2, 1]);
+        let r = &v + &v2;
+        assert_eq!(r, Vector::from(vec![4, 4, 4]));
     }
 
     #[test]
@@ -174,5 +172,25 @@ mod test {
         let v2 = 2 * &v;
         let v3 = Vector::from(vec![2, 4, 6]);
         assert_eq!(v2, v3);
+    }
+
+    #[test]
+    fn test_sub() {
+        let v = Vector::from(vec![1, 2, 3]);
+        let v2 = Vector::from(vec![3, 2, 1]);
+        assert_eq!(&v - &v2, Vector::from(vec![-2, 0, 2]));
+    }
+
+    #[test]
+    fn test_div() {
+        let v = Vector::from(vec![2, 4, 6]);
+        assert_eq!(&v / 2, Vector::from(vec![1, 2, 3]));
+    }
+
+    #[test]
+    fn test_ne() {
+        let v = Vector::from(vec![1, 2, 3]);
+        let v2 = Vector::from(vec![1, 2, 3, 4]);
+        assert_ne!(v, v2);
     }
 }

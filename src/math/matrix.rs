@@ -188,7 +188,7 @@ impl std::fmt::Display for Matrix {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         // write!(f,"rows:{} cols:{}\n",self.rows,self.cols)?;
         for line in &self.data {
-            write!(f, "{:?}\n", line)?
+            write!(f, "{}\n", line)?
         }
         Ok(())
     }

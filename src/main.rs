@@ -3,7 +3,6 @@ mod petrinet;
 
 use crate::petrinet::arc::*;
 use crate::petrinet::petrinet::*;
-
 use math::Matrix;
 
 fn test_petri() {
@@ -29,7 +28,7 @@ fn test_petri() {
         Arc::new(&places[0], &transitions[2], 1),
     ];
     let pet = Petrinet::new(
-        String::from("Pet1"),
+        "Petri 1".to_string(),
         &places,
         &transitions,
         pre_arcs,
@@ -43,5 +42,6 @@ fn test_petri() {
 
 fn main() {
     let m = Matrix::from(vec![vec![-1, 1], vec![1, -1], vec![1, -1]]);
-    print!("{}", m.farkas().unwrap());
+    print!("{}\n", m.farkas().unwrap());
+    test_petri();
 }

@@ -95,6 +95,18 @@ impl Clone for Vector {
     }
 }
 
+impl std::fmt::Display for Vector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"[")?;
+        for i in self.data.iter() {
+            write!(f," {} ",i)?;
+        }
+        write!(f,"]")?;
+
+        Ok(())
+    }
+}
+
 impl Vector {
     pub fn gcd(&self) -> isize {
         self.data

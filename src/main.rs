@@ -1,7 +1,7 @@
 mod math;
 mod petrinet;
 
-use crate::math::Matrix;
+use crate::math::matrix::Matrix;
 use crate::petrinet::arc::*;
 use crate::petrinet::petrinet::*;
 
@@ -42,5 +42,5 @@ fn test_petri() {
 
 fn main() {
     let m = Matrix::from(vec![vec![-1, 1], vec![1, -1], vec![1, -1]]);
-    print!("{}",m.farkas().unwrap());
+    print!("{}", m.farkas().unwrap());
 }

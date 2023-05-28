@@ -1,7 +1,8 @@
 //! Petrinet module
 
 use super::arc::*;
-use crate::math::Matrix;
+use crate::math::matrix::Matrix;
+use crate::math::vector::Vector;
 
 #[derive(Debug)]
 pub struct Petrinet<'a> {
@@ -59,7 +60,7 @@ impl<'a> Petrinet<'a> {
 
         let incidence_matrix = &out_matrix - &in_matrix;
 
-        let invariants = incidence_matrix.farkas().and_then(|i| Some(i.get_data()));
+        let invariants = incidence_matrix.farkas().and_then(|i| Some(i.into()));
 
         Petrinet {
             name,

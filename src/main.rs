@@ -2,6 +2,7 @@ mod math;
 mod petrinet;
 
 use crate::petrinet::arc::*;
+use crate::petrinet::equation::Equation;
 use crate::petrinet::petrinet::*;
 use math::Matrix;
 
@@ -30,7 +31,27 @@ fn test_petri() {
         post_arcs
     );
 
-    petri2.invariants.unwrap().iter().for_each(|i| println!("{}",i));
+    // println!("{:?}",petri2);
+
+    let mark = petri2.new_marking(vec![
+        ("P0",1),
+        ("P1",1),
+        ("P2",1),
+        ("P3",1),
+    ]).unwrap();
+
+    let i_petri2 = petri2.instanciate(mark);
+    
+    if let Some(i_inv) = i_petri2.i_invariants {
+        for i in i_inv {
+            println!("{}",i);
+            if let Some(sols) = i.solve() {
+                for s in sols {
+                    println!("{}",s);
+                }
+            }
+        }
+    }
 
 }
 

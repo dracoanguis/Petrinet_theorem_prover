@@ -27,7 +27,7 @@ pub type Marking<'a> = HashMap<&'a Place, usize>;
 pub struct InstanciedPetrinet<'a> {
     petrinet: &'a Petrinet<'a>,
     marking: Marking<'a>,
-    i_invariants: Option<Vec<InstanciedInvariant<'a>>>,
+    pub i_invariants: Option<Vec<InstanciedInvariant<'a>>>,
 }
 
 impl<'a> Petrinet<'a> {
@@ -133,7 +133,7 @@ impl<'a> InstanciedPetrinet<'a> {
 #[cfg(test)]
 mod test {
 
-    use crate::{place, trans, math::Vector};
+    use crate::{place, trans, math::Vector, petrinet::equation::Equation};
     use super::*;
 
     #[test]
@@ -221,6 +221,55 @@ mod test {
         assert_eq!(
             petri2.invariants,
             Some(vec![Invariant::new(&places, Vector::from(vec![1,1,1,1]))])
+        );
+    }
+
+
+    #[test]
+    fn test_invariants_solve(){
+        let places = Place::new_default_vec(4);
+        let transitions = Transition::new_default_vec(5);
+        let pre_arcs = vec![
+            Arc::new_cost_1(&places[0], &transitions[0]),
+            Arc::new_cost_1(&places[1], &transitions[1]),
+            Arc::new_cost_1(&places[2], &transitions[2]),
+            Arc::new_cost_1(&places[2], &transitions[3]),
+            Arc::new_cost_1(&places[3], &transitions[4]), 
+        ];
+        let post_arcs = vec![
+            Arc::new_cost_1(&places[1], &transitions[0]),
+            Arc::new_cost_1(&places[2], &transitions[1]),
+            Arc::new_cost_1(&places[0], &transitions[2]),
+            Arc::new_cost_1(&places[3], &transitions[3]),
+            Arc::new_cost_1(&places[2], &transitions[4]),
+        ];
+        let petri2 = Petrinet::new(
+            "Petri2".to_string(),
+            &places,
+            &transitions,
+            pre_arcs,
+            post_arcs
+        );
+
+        let mark = petri2.new_marking(vec![
+            ("P0",1),
+            ("P1",1),
+            ("P2",1),
+            ("P3",1),
+        ]).unwrap();
+
+        let i_petri2 = petri2.instanciate(mark);
+
+        // let sols = i_petri2.i_invariants.and_then(|v| v[0].solve());
+
+        assert_eq!(
+            i_petri2.i_invariants.and_then(|v| 
+                v[0].solve().and_then(|r| {
+                    r.iter().for_each(|vec| println!("{}",vec)); 
+                    Some(r.len())
+                })
+            ),
+            Some(35)
         );
     }
 

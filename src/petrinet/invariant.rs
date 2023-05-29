@@ -2,7 +2,7 @@
 
 use std::{ops::Add, fmt::Display};
 
-use super::{arc::*, petrinet::Marking};
+use super::{arc::*, petrinet::Marking, equation::Equation};
 use crate::math::{gcd, Vector};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -112,30 +112,10 @@ impl<'a> InstanciedInvariant<'a> {
         }
     }
 
-    pub fn verify(&self, values: &Vector) -> bool {
-        (&self.equation.weights * values).sum() == self.result
-    }
-
     pub fn new_from_result(equation: &'a Invariant, result: isize) -> Self {
         InstanciedInvariant {
             equation: equation.clone(),
             result,
-        }
-    }
-
-    pub fn simplify(&self) -> Self {
-        let g_res = gcd(
-            self.equation.weights.gcd().unsigned_abs(),
-            self.result.unsigned_abs(),
-        ) as isize;
-
-        let n_weights = &self.equation.weights / g_res;
-        let n_res = self.result / g_res;
-        let i = Invariant::new(self.equation.places, n_weights);
-
-        InstanciedInvariant {
-            equation: i,
-            result: n_res,
         }
     }
 }
@@ -155,4 +135,36 @@ impl<'a> std::fmt::Display for InstanciedInvariant<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f,"{} = {}",self.equation,self.result)
     }
+}
+
+impl<'a> Equation for InstanciedInvariant<'a> {
+    
+    fn get_weights(&self) -> Vector {
+        self.equation.weights.clone()
+    }
+
+    fn get_result(&self) -> isize {
+        self.result
+    }
+
+    // fn simplify(&self) -> Self {
+    //     let g_res = gcd(
+    //         self.equation.weights.gcd().unsigned_abs(),
+    //         self.result.unsigned_abs(),
+    //     ) as isize;
+
+    //     let n_weights = &self.equation.weights / g_res;
+    //     let n_res = self.result / g_res;
+    //     let i = Invariant::new(self.equation.places, n_weights);
+
+    //     InstanciedInvariant {
+    //         equation: i,
+    //         result: n_res,
+    //     }
+    // }
+
+    fn get_simplify_factor(&self) -> isize {
+        self.equation.weights.gcd()
+    }
+
 }

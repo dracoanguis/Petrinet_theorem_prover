@@ -41,13 +41,6 @@ pub trait Equation: Sized+Debug {
 
         // Sign that full Vector is 0
         if s_f == 0 || self.get_result() == 0 {
-            // let possible_sol = Vector::new(self.get_weights().len());
-
-            // if self.verify(&possible_sol){
-            //     println!("Self: {:?} Poss_eq: {}",self,possible_sol);
-            //     return Some(vec![possible_sol]);
-            // }
-
             return None;
         }
 

@@ -120,12 +120,9 @@ impl Matrix {
         Some(d)
     }
 
-
     pub fn get_vectors(&self) -> Vec<Vector> {
         self.data.clone()
     }
-
-
 }
 
 impl ops::Add<&Matrix> for &Matrix {

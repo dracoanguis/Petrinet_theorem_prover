@@ -22,10 +22,14 @@ impl ops::Mul for &Vector {
 
     fn mul(self, rhs: Self) -> Self::Output {
         Vector {
-            data: rhs.data.iter().zip(rhs.data.iter()).map(|(l,r)| l*r).collect()
+            data: rhs
+                .data
+                .iter()
+                .zip(rhs.data.iter())
+                .map(|(l, r)| l * r)
+                .collect(),
         }
     }
-
 }
 
 impl ops::Div<isize> for &Vector {
@@ -86,7 +90,6 @@ impl From<&Vec<isize>> for Vector {
     }
 }
 
-
 impl Into<Vec<isize>> for Vector {
     fn into(self) -> Vec<isize> {
         self.data
@@ -109,11 +112,11 @@ impl Clone for Vector {
 
 impl std::fmt::Display for Vector {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"[")?;
+        write!(f, "[")?;
         for i in self.data.iter() {
-            write!(f," {} ",i)?;
+            write!(f, " {} ", i)?;
         }
-        write!(f,"]")?;
+        write!(f, "]")?;
 
         Ok(())
     }
@@ -149,7 +152,7 @@ impl Vector {
     }
 }
 
-fn gcd(a: usize, b: usize) -> usize {
+pub fn gcd(a: usize, b: usize) -> usize {
     if a == b {
         return a;
     }

@@ -54,7 +54,10 @@ impl Eq for Place {}
 
 impl From<&str> for Place {
     fn from(s: &str) -> Self {
-        Place { name: s.to_string(), comment: String::new() }
+        Place {
+            name: s.to_string(),
+            comment: String::new(),
+        }
     }
 }
 
@@ -83,7 +86,10 @@ impl PartialEq for Transition {
 
 impl From<&str> for Transition {
     fn from(s: &str) -> Self {
-        Transition { name: s.to_string(), comment: String::new() }
+        Transition {
+            name: s.to_string(),
+            comment: String::new(),
+        }
     }
 }
 
@@ -107,7 +113,6 @@ impl<'a> Arc<'a> {
     }
 }
 
-
 #[cfg(test)]
 mod test {
 
@@ -117,14 +122,14 @@ mod test {
     fn test_eq_simple() {
         let p1 = Place::new_without_comment("P1".to_string());
         let p2 = Place::new_without_comment("P1".to_string());
-        assert_eq!(p1,p2);
+        assert_eq!(p1, p2);
     }
 
     #[test]
     fn test_eq_complex() {
         let p1 = Place::new("P1".to_string(), "New place".to_string());
         let p2 = Place::from("P1");
-        assert_eq!(p1,p2);
+        assert_eq!(p1, p2);
     }
 
     #[test]

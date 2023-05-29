@@ -67,6 +67,13 @@ impl Hash for Place {
     }
 }
 
+#[macro_export]
+macro_rules! place {
+    ($s:literal) => {
+        Place::new_without_comment($s.to_string())
+    };
+}
+
 impl Transition {
     pub fn new(name: String, comment: String) -> Self {
         Transition { name, comment }
@@ -99,11 +106,26 @@ impl Hash for Transition {
     }
 }
 
+#[macro_export]
+macro_rules! trans {
+    ($s:literal) => {
+        Transition::new_without_comment($s.to_string())
+    };
+}
+
 impl<'a> Arc<'a> {
     pub fn new(place: &'a Place, transition: &'a Transition, cost_or_gain: isize) -> Self {
         Arc {
             place,
             cost_or_gain,
+            transition,
+        }
+    }
+
+    pub fn new_cost_1(place: &'a Place, transition: &'a Transition) -> Self {
+        Arc {
+            place,
+            cost_or_gain: 1,
             transition,
         }
     }

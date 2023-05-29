@@ -133,10 +133,12 @@ impl<'a> InstanciedPetrinet<'a> {
 #[cfg(test)]
 mod test {
 
+    use crate::{place, trans, math::Vector};
+
     use super::*;
 
     #[test]
-    fn test_petrinet_1_computed_values() {
+    fn test_petrinet_computed_values_1() {
         let places = vec![
             Place::new_without_comment("p1".to_string()),
             Place::new_without_comment(String::from("p2")),
@@ -181,4 +183,63 @@ mod test {
 
         assert_eq!(pet.invariants, None)
     }
+
+    #[test]
+    fn test_petrinet_computed_values_2() {
+        let places = vec![
+            place!("P1"),
+            place!("P2"),
+            place!("P3"),
+            place!("P4"),
+        ];
+        let transitions = vec![
+            trans!("T1"),
+            trans!("T2"),
+            trans!("T3"),
+            trans!("T4"),
+            trans!("T5"),
+        ];
+        let pre_arcs = vec![
+            Arc::new_cost_1(&places[0], &transitions[0]),
+            Arc::new_cost_1(&places[1], &transitions[1]),
+            Arc::new_cost_1(&places[2], &transitions[2]),
+            Arc::new_cost_1(&places[2], &transitions[3]),
+            Arc::new_cost_1(&places[3], &transitions[4]), 
+        ];
+        let post_arcs = vec![
+            Arc::new_cost_1(&places[1], &transitions[0]),
+            Arc::new_cost_1(&places[2], &transitions[1]),
+            Arc::new_cost_1(&places[0], &transitions[2]),
+            Arc::new_cost_1(&places[3], &transitions[3]),
+            Arc::new_cost_1(&places[2], &transitions[4]),
+        ];
+        let petri2 = Petrinet::new(
+            "Petri2".to_string(),
+            &places,
+            &transitions,
+            pre_arcs,
+            post_arcs
+        );
+
+        assert_eq!(
+            petri2.in_matrix,
+            Matrix::from(vec![vec![1,0,0,0,0],vec![0,1,0,0,0],vec![0,0,1,1,0],vec![0,0,0,0,1]])
+        );
+
+        assert_eq!(
+            petri2.out_matrix,
+            Matrix::from(vec![vec![0,0,1,0,0],vec![1,0,0,0,0],vec![0,1,0,0,1],vec![0,0,0,1,0]])
+        );
+
+        assert_eq!(
+            petri2.incidence_matrix,
+            Matrix::from(vec![vec![-1,0,1,0,0],vec![1,-1,0,0,0],vec![0,1,-1,-1,1],vec![0,0,0,1,-1]])
+        );
+
+        assert_eq!(
+            petri2.invariants,
+            Some(vec![Invariant::new(&places, Vector::from(vec![1,1,1,1]))])
+        );
+    }
+
 }

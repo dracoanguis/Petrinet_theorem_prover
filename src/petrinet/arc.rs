@@ -30,7 +30,26 @@ impl Place {
         let comment = String::new();
         Place { name, comment }
     }
+
+    pub fn new_default_vec(size: usize) -> Vec<Place> {
+        let mut v = Vec::new();
+        v.reserve(size);
+
+        for i in 0..size {
+            v.push(Place::new_without_comment(format!("P{}",i.to_string())));
+        }
+
+        v
+    }
 }
+
+#[macro_export]
+macro_rules! place {
+    ($s:literal) => {
+        Place::new_without_comment($s.to_string())
+    };
+}
+
 
 impl PartialEq for Place {
     fn eq(&self, other: &Self) -> bool {
@@ -67,12 +86,6 @@ impl Hash for Place {
     }
 }
 
-#[macro_export]
-macro_rules! place {
-    ($s:literal) => {
-        Place::new_without_comment($s.to_string())
-    };
-}
 
 impl Transition {
     pub fn new(name: String, comment: String) -> Self {
@@ -82,6 +95,17 @@ impl Transition {
     pub fn new_without_comment(name: String) -> Self {
         let comment = String::new();
         Transition { name, comment }
+    }
+
+    pub fn new_default_vec(size: usize) -> Vec<Transition> {
+        let mut v = Vec::new();
+        v.reserve(size);
+
+        for i in 0..size {
+            v.push(Transition::new_without_comment(format!("T{}",i.to_string())));
+        }
+
+        v
     }
 }
 

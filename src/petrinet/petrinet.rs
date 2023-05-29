@@ -134,20 +134,12 @@ impl<'a> InstanciedPetrinet<'a> {
 mod test {
 
     use crate::{place, trans, math::Vector};
-
     use super::*;
 
     #[test]
     fn test_petrinet_computed_values_1() {
-        let places = vec![
-            Place::new_without_comment("p1".to_string()),
-            Place::new_without_comment(String::from("p2")),
-        ];
-        let transitions = vec![
-            Transition::new_without_comment(String::from("t1")),
-            Transition::new_without_comment(String::from("t2")),
-            Transition::new_without_comment(String::from("t3")),
-        ];
+        let places = Place::new_default_vec(2);
+        let transitions = Transition::new_default_vec(3);
         let pre_arcs = vec![
             Arc::new(&places[0], &transitions[0], 2),
             Arc::new(&places[0], &transitions[1], 1),
@@ -186,40 +178,30 @@ mod test {
 
     #[test]
     fn test_petrinet_computed_values_2() {
-        let places = vec![
-            place!("P1"),
-            place!("P2"),
-            place!("P3"),
-            place!("P4"),
-        ];
-        let transitions = vec![
-            trans!("T1"),
-            trans!("T2"),
-            trans!("T3"),
-            trans!("T4"),
-            trans!("T5"),
-        ];
-        let pre_arcs = vec![
-            Arc::new_cost_1(&places[0], &transitions[0]),
-            Arc::new_cost_1(&places[1], &transitions[1]),
-            Arc::new_cost_1(&places[2], &transitions[2]),
-            Arc::new_cost_1(&places[2], &transitions[3]),
-            Arc::new_cost_1(&places[3], &transitions[4]), 
-        ];
-        let post_arcs = vec![
-            Arc::new_cost_1(&places[1], &transitions[0]),
-            Arc::new_cost_1(&places[2], &transitions[1]),
-            Arc::new_cost_1(&places[0], &transitions[2]),
-            Arc::new_cost_1(&places[3], &transitions[3]),
-            Arc::new_cost_1(&places[2], &transitions[4]),
-        ];
-        let petri2 = Petrinet::new(
-            "Petri2".to_string(),
-            &places,
-            &transitions,
-            pre_arcs,
-            post_arcs
-        );
+        
+            let places = Place::new_default_vec(4);
+            let transitions = Transition::new_default_vec(5);
+            let pre_arcs = vec![
+                Arc::new_cost_1(&places[0], &transitions[0]),
+                Arc::new_cost_1(&places[1], &transitions[1]),
+                Arc::new_cost_1(&places[2], &transitions[2]),
+                Arc::new_cost_1(&places[2], &transitions[3]),
+                Arc::new_cost_1(&places[3], &transitions[4]), 
+            ];
+            let post_arcs = vec![
+                Arc::new_cost_1(&places[1], &transitions[0]),
+                Arc::new_cost_1(&places[2], &transitions[1]),
+                Arc::new_cost_1(&places[0], &transitions[2]),
+                Arc::new_cost_1(&places[3], &transitions[3]),
+                Arc::new_cost_1(&places[2], &transitions[4]),
+            ];
+            let petri2 = Petrinet::new(
+                "Petri2".to_string(),
+                &places,
+                &transitions,
+                pre_arcs,
+                post_arcs
+            );
 
         assert_eq!(
             petri2.in_matrix,

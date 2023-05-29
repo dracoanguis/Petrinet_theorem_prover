@@ -66,7 +66,7 @@ impl Matrix {
 
     fn truncate_col(&mut self, n_col: usize) {
         self.data.iter_mut().for_each(|l| {
-            l.rotate_right(n_col + 1);
+            l.rotate_right(self.cols - n_col);
             l.truncate(self.cols - n_col)
         });
         self.cols -= n_col;
@@ -245,9 +245,16 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_farkas_exist() {
+    fn test_farkas_1() {
         let m = Matrix::from(vec![vec![-1, 1], vec![1, -1], vec![1, -1]]);
         let m2 = Matrix::from(vec![vec![1, 1, 0], vec![1, 0, 1]]);
         assert_eq!(m.farkas(), Some(m2));
+    }
+
+    #[test]
+    fn test_farkas_2() {
+        let m = Matrix::from(vec![vec![-1,0,1,0,0],vec![1,-1,0,0,0],vec![0,1,-1,-1,1],vec![0,0,0,1,-1]]);
+        let r = Matrix::from(vec![vec![1,1,1,1]]);
+        assert_eq!(m.farkas(),Some(r));
     }
 }

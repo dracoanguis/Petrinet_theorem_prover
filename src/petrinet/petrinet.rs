@@ -133,7 +133,7 @@ impl<'a> InstanciedPetrinet<'a> {
 #[cfg(test)]
 mod test {
 
-    use crate::{place, trans, math::Vector, petrinet::equation::Equation};
+    use crate::{math::Vector, petrinet::equation::Equation};
     use super::*;
 
     #[test]
@@ -259,8 +259,6 @@ mod test {
         ]).unwrap();
 
         let i_petri2 = petri2.instanciate(mark);
-
-        // let sols = i_petri2.i_invariants.and_then(|v| v[0].solve());
 
         assert_eq!(
             i_petri2.i_invariants.and_then(|v| 

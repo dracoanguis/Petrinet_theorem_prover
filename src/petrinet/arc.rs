@@ -4,14 +4,14 @@ use std::hash::Hash;
 
 #[derive(Debug)]
 pub struct Place {
-    name: String,
-    comment: String,
+    pub name: String,
+    pub comment: String,
 }
 
 #[derive(Debug)]
 pub struct Transition {
-    name: String,
-    comment: String,
+    pub name: String,
+    pub comment: String,
 }
 
 #[derive(Debug)]

@@ -1,6 +1,6 @@
 //! Invariant module
 
-use std::ops::Add;
+use std::{ops::Add, fmt::Display};
 
 use super::{arc::*, petrinet::Marking};
 use crate::math::{gcd, Vector};
@@ -42,6 +42,57 @@ impl<'a> Add for &Invariant<'a> {
         Invariant::new(self.places, &self.weights + &rhs.weights)
     }
 }
+
+impl<'a> std::fmt::Display for Invariant<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        
+        let mut first = true;
+        
+        for i in 0..self.weights.len() {
+            let val = self.weights.index(i);
+            if val == 0{
+                continue;
+            } else {
+                match val {
+                    1 => {
+                        if !first {
+                            write!(f,"+")?;
+                        } else {
+                            first = false;
+                        }
+                        write!(f,"{}",self.places[i].name)?;
+                    },
+                    -1 => {
+                        if !first {
+                            write!(f,"-")?;
+                        } else {
+                            first = false;
+                        }
+                        write!(f,"{}",self.places[i].name)?;
+                    }
+                    val if val<0 => {
+                        if !first {
+                            write!(f,"-")?;
+                        } else {
+                            first = false;
+                        }
+                        write!(f,"{}{}",val,self.places[i].name)?;
+                    },
+                    _ => {
+                        if !first {
+                            write!(f,"+")?;
+                        } else {
+                            first = false;
+                        }
+                        write!(f,"{}{}",val,self.places[i].name)?;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
 
 impl<'a> InstanciedInvariant<'a> {
     pub fn new(equation: &'a Invariant, marking: &Marking) -> Self {
@@ -97,5 +148,11 @@ impl<'a> Add for &InstanciedInvariant<'a> {
             equation: &self.equation + &rhs.equation,
             result: self.result + rhs.result,
         }
+    }
+}
+
+impl<'a> std::fmt::Display for InstanciedInvariant<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"{} = {}",self.equation,self.result)
     }
 }

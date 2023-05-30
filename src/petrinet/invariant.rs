@@ -11,7 +11,7 @@ pub struct Invariant<'a> {
     weights: Vector,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct InstanciedInvariant<'a> {
     equation: Invariant<'a>,
     result: isize,
@@ -107,6 +107,8 @@ impl<'a> InstanciedInvariant<'a> {
                 .map(|p| marking.get(p).unwrap().clone() as isize)
                 .collect(),
         );
+
+        println!("{}",&values);
 
         let result = (&equation.weights * &values).sum();
 

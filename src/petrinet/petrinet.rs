@@ -26,8 +26,8 @@ pub type Marking<'a> = HashMap<&'a Place, usize>;
 
 #[derive(Debug)]
 pub struct InstanciedPetrinet<'a> {
-    petrinet: &'a Petrinet<'a>,
-    marking: Marking<'a>,
+    pub petrinet: &'a Petrinet<'a>,
+    pub marking: Marking<'a>,
     pub i_invariants: HashSet<InstanciedInvariant<'a>>,
 }
 

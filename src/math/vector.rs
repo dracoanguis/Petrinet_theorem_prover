@@ -22,7 +22,7 @@ impl ops::Mul<isize> for &Vector {
 
     fn mul(self, rhs: isize) -> Self::Output {
         Vector {
-            data: self.data.iter().map(|&l| l / rhs).collect(),
+            data: self.data.iter().map(|&l| l * rhs).collect(),
         }
     }
 }

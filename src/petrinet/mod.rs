@@ -1,4 +1,5 @@
 pub mod arc;
+pub mod equation;
 pub mod invariant;
 pub mod petrinet;
-pub mod equation;
+pub mod theorem;

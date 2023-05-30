@@ -1,8 +1,8 @@
 //! Vector module
 
-use std::ops;
+use std::{hash::Hash, ops};
 
-#[derive(Debug)]
+#[derive(Debug, Eq)]
 pub struct Vector {
     data: Vec<isize>,
 }
@@ -22,7 +22,7 @@ impl ops::Mul<isize> for &Vector {
 
     fn mul(self, rhs: isize) -> Self::Output {
         Vector {
-            data: self.data.iter().map(|&l| l/rhs).collect(),
+            data: self.data.iter().map(|&l| l / rhs).collect(),
         }
     }
 }
@@ -57,9 +57,11 @@ impl ops::Div for &Vector {
 
     fn div(self, rhs: Self) -> Self::Output {
         Vector {
-            data: self.data.iter()
+            data: self
+                .data
+                .iter()
                 .zip(rhs.data.iter())
-                .map(|(&l,&r)| l / r )
+                .map(|(&l, &r)| l / r)
                 .collect(),
         }
     }
@@ -145,10 +147,17 @@ impl std::fmt::Display for Vector {
     }
 }
 
-impl Vector {
+impl Hash for Vector {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.data.hash(state);
+    }
+}
 
+impl Vector {
     pub fn new(size: usize) -> Self {
-        Vector { data: vec![0;size] }
+        Vector {
+            data: vec![0; size],
+        }
     }
 
     pub fn gcd(&self) -> isize {
@@ -240,19 +249,19 @@ mod test {
     }
 
     #[test]
-    fn test_mul_vec(){
-        let v = Vector::from(vec![1,2,3,4]);
-        let v2 = Vector::from(vec![1,0,0,1]);
-        let r = Vector::from(vec![1,0,0,4]);
-        assert_eq!((&v*&v2),r);
+    fn test_mul_vec() {
+        let v = Vector::from(vec![1, 2, 3, 4]);
+        let v2 = Vector::from(vec![1, 0, 0, 1]);
+        let r = Vector::from(vec![1, 0, 0, 4]);
+        assert_eq!((&v * &v2), r);
     }
 
     #[test]
-    fn test_div_vec(){
-        let v = Vector::from(vec![2,2,3,4]);
-        let v2 = Vector::from(vec![2,1,1,2]);
-        let r = Vector::from(vec![1,2,3,2]);
-        assert_eq!(&v/&v2,r);
+    fn test_div_vec() {
+        let v = Vector::from(vec![2, 2, 3, 4]);
+        let v2 = Vector::from(vec![2, 1, 1, 2]);
+        let r = Vector::from(vec![1, 2, 3, 2]);
+        assert_eq!(&v / &v2, r);
     }
 
     #[test]

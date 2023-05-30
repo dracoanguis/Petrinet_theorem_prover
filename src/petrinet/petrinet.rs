@@ -133,8 +133,8 @@ impl<'a> InstanciedPetrinet<'a> {
 #[cfg(test)]
 mod test {
 
-    use crate::{math::Vector, petrinet::equation::Equation};
     use super::*;
+    use crate::{math::Vector, petrinet::equation::Equation};
 
     #[test]
     fn test_petrinet_computed_values_1() {
@@ -178,97 +178,104 @@ mod test {
 
     #[test]
     fn test_petrinet_computed_values_2() {
-        
-            let places = Place::new_default_vec(4);
-            let transitions = Transition::new_default_vec(5);
-            let pre_arcs = vec![
-                places[0].link_cost_1(&transitions[0]),
-                places[1].link_cost_1(&transitions[1]),
-                places[2].link_cost_1(&transitions[2]),
-                places[2].link_cost_1(&transitions[3]),
-                places[3].link_cost_1(&transitions[4]),
-            ];
-            let post_arcs = vec![
-                transitions[0].link_gain_1(&places[1]),
-                transitions[1].link_gain_1(&places[2]),
-                transitions[2].link_gain_1(&places[0]),
-                transitions[3].link_gain_1(&places[3]),
-                transitions[4].link_gain_1(&places[2]),                
-            ];
-            let petri2 = Petrinet::new(
-                "Petri2".to_string(),
-                &places,
-                &transitions,
-                pre_arcs,
-                post_arcs
-            );
-
-        assert_eq!(
-            petri2.in_matrix,
-            Matrix::from(vec![vec![1,0,0,0,0],vec![0,1,0,0,0],vec![0,0,1,1,0],vec![0,0,0,0,1]])
-        );
-
-        assert_eq!(
-            petri2.out_matrix,
-            Matrix::from(vec![vec![0,0,1,0,0],vec![1,0,0,0,0],vec![0,1,0,0,1],vec![0,0,0,1,0]])
-        );
-
-        assert_eq!(
-            petri2.incidence_matrix,
-            Matrix::from(vec![vec![-1,0,1,0,0],vec![1,-1,0,0,0],vec![0,1,-1,-1,1],vec![0,0,0,1,-1]])
-        );
-
-        assert_eq!(
-            petri2.invariants,
-            Some(vec![Invariant::new(&places, Vector::from(vec![1,1,1,1]))])
-        );
-    }
-
-
-    #[test]
-    fn test_invariants_solve(){
         let places = Place::new_default_vec(4);
         let transitions = Transition::new_default_vec(5);
         let pre_arcs = vec![
-                places[0].link_cost_1(&transitions[0]),
-                places[1].link_cost_1(&transitions[1]),
-                places[2].link_cost_1(&transitions[2]),
-                places[2].link_cost_1(&transitions[3]),
-                places[3].link_cost_1(&transitions[4]),
-            ];
-            let post_arcs = vec![
-                transitions[0].link_gain_1(&places[1]),
-                transitions[1].link_gain_1(&places[2]),
-                transitions[2].link_gain_1(&places[0]),
-                transitions[3].link_gain_1(&places[3]),
-                transitions[4].link_gain_1(&places[2]),                
-            ];
+            places[0].link_cost_1(&transitions[0]),
+            places[1].link_cost_1(&transitions[1]),
+            places[2].link_cost_1(&transitions[2]),
+            places[2].link_cost_1(&transitions[3]),
+            places[3].link_cost_1(&transitions[4]),
+        ];
+        let post_arcs = vec![
+            transitions[0].link_gain_1(&places[1]),
+            transitions[1].link_gain_1(&places[2]),
+            transitions[2].link_gain_1(&places[0]),
+            transitions[3].link_gain_1(&places[3]),
+            transitions[4].link_gain_1(&places[2]),
+        ];
         let petri2 = Petrinet::new(
             "Petri2".to_string(),
             &places,
             &transitions,
             pre_arcs,
-            post_arcs
+            post_arcs,
         );
 
-        let mark = petri2.new_marking(vec![
-            ("P0",1),
-            ("P1",1),
-            ("P2",1),
-            ("P3",1),
-        ]).unwrap();
+        assert_eq!(
+            petri2.in_matrix,
+            Matrix::from(vec![
+                vec![1, 0, 0, 0, 0],
+                vec![0, 1, 0, 0, 0],
+                vec![0, 0, 1, 1, 0],
+                vec![0, 0, 0, 0, 1]
+            ])
+        );
+
+        assert_eq!(
+            petri2.out_matrix,
+            Matrix::from(vec![
+                vec![0, 0, 1, 0, 0],
+                vec![1, 0, 0, 0, 0],
+                vec![0, 1, 0, 0, 1],
+                vec![0, 0, 0, 1, 0]
+            ])
+        );
+
+        assert_eq!(
+            petri2.incidence_matrix,
+            Matrix::from(vec![
+                vec![-1, 0, 1, 0, 0],
+                vec![1, -1, 0, 0, 0],
+                vec![0, 1, -1, -1, 1],
+                vec![0, 0, 0, 1, -1]
+            ])
+        );
+
+        assert_eq!(
+            petri2.invariants,
+            Some(vec![Invariant::new(
+                &places,
+                Vector::from(vec![1, 1, 1, 1])
+            )])
+        );
+    }
+
+    #[test]
+    fn test_invariants_solve() {
+        let places = Place::new_default_vec(4);
+        let transitions = Transition::new_default_vec(5);
+        let pre_arcs = vec![
+            places[0].link_cost_1(&transitions[0]),
+            places[1].link_cost_1(&transitions[1]),
+            places[2].link_cost_1(&transitions[2]),
+            places[2].link_cost_1(&transitions[3]),
+            places[3].link_cost_1(&transitions[4]),
+        ];
+        let post_arcs = vec![
+            transitions[0].link_gain_1(&places[1]),
+            transitions[1].link_gain_1(&places[2]),
+            transitions[2].link_gain_1(&places[0]),
+            transitions[3].link_gain_1(&places[3]),
+            transitions[4].link_gain_1(&places[2]),
+        ];
+        let petri2 = Petrinet::new(
+            "Petri2".to_string(),
+            &places,
+            &transitions,
+            pre_arcs,
+            post_arcs,
+        );
+
+        let mark = petri2
+            .new_marking(vec![("P0", 1), ("P1", 1), ("P2", 1), ("P3", 1)])
+            .unwrap();
 
         let i_petri2 = petri2.instanciate(mark);
 
         assert_eq!(
-            i_petri2.i_invariants.and_then(|v| 
-                v[0].solve().and_then(|r| {
-                    r.iter().for_each(|vec| println!("{}",vec)); 
-                    Some(r.len())
-                })
-            ),
+            i_petri2.i_invariants.and_then(|v| Some(v[0].solve().len())),
             Some(35)
         );
     }
-
 }

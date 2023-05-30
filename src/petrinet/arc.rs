@@ -36,20 +36,27 @@ impl Place {
         v.reserve(size);
 
         for i in 0..size {
-            v.push(Place::new_without_comment(format!("P{}",i.to_string())));
+            v.push(Place::new_without_comment(format!("P{}", i.to_string())));
         }
 
         v
     }
 
-    pub fn link<'a>(&'a self, transition: &'a Transition, cost:isize) -> Arc<'a> {
-        Arc { place: self, cost_or_gain: cost, transition }
+    pub fn link<'a>(&'a self, transition: &'a Transition, cost: isize) -> Arc<'a> {
+        Arc {
+            place: self,
+            cost_or_gain: cost,
+            transition,
+        }
     }
 
     pub fn link_cost_1<'a>(&'a self, transition: &'a Transition) -> Arc<'a> {
-        Arc { place: self, cost_or_gain: 1, transition }
+        Arc {
+            place: self,
+            cost_or_gain: 1,
+            transition,
+        }
     }
-
 }
 
 impl PartialEq for Place {
@@ -90,7 +97,7 @@ impl Hash for Place {
 #[macro_export]
 macro_rules! place {
     ($s_name:literal,$s_comment:literal) => {
-        Place::new($s_name.to_string(),$s_comment.to_string())
+        Place::new($s_name.to_string(), $s_comment.to_string())
     };
 }
 
@@ -109,20 +116,30 @@ impl Transition {
         v.reserve(size);
 
         for i in 0..size {
-            v.push(Transition::new_without_comment(format!("T{}",i.to_string())));
+            v.push(Transition::new_without_comment(format!(
+                "T{}",
+                i.to_string()
+            )));
         }
 
         v
     }
 
-    pub fn link<'a>(&'a self, place: &'a Place, gain:isize) -> Arc<'a> {
-        Arc { place, cost_or_gain: gain, transition: self }
+    pub fn link<'a>(&'a self, place: &'a Place, gain: isize) -> Arc<'a> {
+        Arc {
+            place,
+            cost_or_gain: gain,
+            transition: self,
+        }
     }
 
     pub fn link_gain_1<'a>(&'a self, place: &'a Place) -> Arc<'a> {
-        Arc { place, cost_or_gain: 1, transition: self }
+        Arc {
+            place,
+            cost_or_gain: 1,
+            transition: self,
+        }
     }
-
 }
 
 impl PartialEq for Transition {
@@ -149,7 +166,7 @@ impl Hash for Transition {
 #[macro_export]
 macro_rules! trans {
     ($s_name:literal,$s_comment:literal) => {
-        Transition::new($s_name.to_string(),$s_comment.to_string())
+        Transition::new($s_name.to_string(), $s_comment.to_string())
     };
 }
 

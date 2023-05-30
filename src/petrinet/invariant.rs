@@ -1,17 +1,17 @@
 //! Invariant module
 
-use std::{fmt::Display, ops::Add};
+use std::{fmt::Display, ops::Add, hash::{Hash, self}};
 
 use super::{arc::*, equation::Equation, petrinet::Marking};
 use crate::math::{gcd, Vector};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Invariant<'a> {
     places: &'a Vec<Place>,
     weights: Vector,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct InstanciedInvariant<'a> {
     equation: Invariant<'a>,
     result: isize,
@@ -92,6 +92,12 @@ impl<'a> std::fmt::Display for Invariant<'a> {
     }
 }
 
+impl<'a> Hash for Invariant<'a> {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.weights.hash(state);
+    }
+}
+
 impl<'a> InstanciedInvariant<'a> {
     pub fn new(equation: &'a Invariant, marking: &Marking) -> Self {
         let values = Vector::from(
@@ -144,23 +150,14 @@ impl<'a> Equation for InstanciedInvariant<'a> {
         self.result
     }
 
-    // fn simplify(&self) -> Self {
-    //     let g_res = gcd(
-    //         self.equation.weights.gcd().unsigned_abs(),
-    //         self.result.unsigned_abs(),
-    //     ) as isize;
-
-    //     let n_weights = &self.equation.weights / g_res;
-    //     let n_res = self.result / g_res;
-    //     let i = Invariant::new(self.equation.places, n_weights);
-
-    //     InstanciedInvariant {
-    //         equation: i,
-    //         result: n_res,
-    //     }
-    // }
-
     fn get_simplify_factor(&self) -> isize {
         self.equation.weights.gcd()
+    }
+}
+
+impl<'a> Hash for InstanciedInvariant<'a> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.equation.hash(state);
+        self.result.hash(state);
     }
 }

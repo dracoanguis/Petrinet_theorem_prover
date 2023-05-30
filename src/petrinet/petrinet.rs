@@ -1,6 +1,7 @@
 //! Petrinet module
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use super::arc::*;
 use super::invariant::*;
@@ -27,7 +28,7 @@ pub type Marking<'a> = HashMap<&'a Place, usize>;
 pub struct InstanciedPetrinet<'a> {
     petrinet: &'a Petrinet<'a>,
     marking: Marking<'a>,
-    pub i_invariants: Option<Vec<InstanciedInvariant<'a>>>,
+    pub i_invariants: HashSet<InstanciedInvariant<'a>>,
 }
 
 impl<'a> Petrinet<'a> {
@@ -114,7 +115,7 @@ impl<'a> InstanciedPetrinet<'a> {
     pub fn new(petrinet: &'a Petrinet, marking: Marking<'a>) -> Self {
         match &petrinet.invariants {
             Some(invs) => {
-                let i_invariants = Some(invs.iter().map(|v| v.instanciate(&marking)).collect());
+                let i_invariants = invs.iter().map(|v| v.instanciate(&marking)).collect();
                 InstanciedPetrinet {
                     petrinet,
                     marking,
@@ -124,7 +125,7 @@ impl<'a> InstanciedPetrinet<'a> {
             None => InstanciedPetrinet {
                 petrinet,
                 marking,
-                i_invariants: None,
+                i_invariants: HashSet::new(),
             },
         }
     }
@@ -274,8 +275,10 @@ mod test {
         let i_petri2 = petri2.instanciate(mark);
 
         assert_eq!(
-            i_petri2.i_invariants.and_then(|v| Some(v[0].solve().len())),
-            Some(35)
+            i_petri2.i_invariants.iter()
+                .map(|ii| ii.solve().len() )
+                .sum::<usize>(),
+            35      
         );
     }
 }

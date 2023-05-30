@@ -89,7 +89,7 @@ pub trait Equation: Sized + Debug {
             }
         }
 
-        println!("self:{:?} sols:{:?}",self ,sols);
+        // println!("self:{:?} sols:{:?}",self ,sols);
         sols
     }
 }

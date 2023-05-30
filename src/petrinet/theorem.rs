@@ -41,41 +41,43 @@ impl<'a> Equation for Theorem<'a> {
     }
 
     fn solve(&self) -> HashSet<Vector> {
-        let sol_set = match self.kind {
-            TheoremKind::Equality => {
-                let set = PartialEquation::new(&self.weights, self.result).solve();
-                println!("theorem: sol: {:?}",set);
-                set
-            },
-            TheoremKind::Inequality => {
-                let mut set = HashSet::new();
-                for sub_res in 0..(self.result + 1) {
-                    let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
-                    set.extend(sub_sols.drain());
-                }
-                set
-            }
-            TheoremKind::InequalityStrict => {
-                let mut set = HashSet::new();
-                for sub_res in 0..self.result {
-                    let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
-                    set.extend(sub_sols.drain());
-                }
-                set
-            }
-        };
+        // let sol_set = match self.kind {
+        //     TheoremKind::Equality => {
+        //         let set = PartialEquation::new(&self.weights, self.result).solve();
+        //         println!("theorem: sol: {:?}",set);
+        //         set
+        //     },
+        //     TheoremKind::Inequality => {
+        //         let mut set = HashSet::new();
+        //         for sub_res in 0..(self.result + 1) {
+        //             let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
+        //             set.extend(sub_sols.drain());
+        //         }
+        //         set
+        //     }
+        //     TheoremKind::InequalityStrict => {
+        //         let mut set = HashSet::new();
+        //         for sub_res in 0..self.result {
+        //             let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
+        //             set.extend(sub_sols.drain());
+        //         }
+        //         set
+        //     }
+        // };
 
-        println!("theorem:{} sols:{:?}",&self,&sol_set);
+        // println!("theorem:{} sols:{:?}",&self,&sol_set);
 
         if let Some(contraint_set) = self.over.i_invariants.clone().into_iter()
             .reduce(|acc, cur| &acc+&cur )
             .and_then(|super_inv| Some(super_inv.solve()))
             {
-                return contraint_set.intersection(&sol_set)
-                    .cloned()
+                return contraint_set.into_iter()
+                    .filter(|s_v| self.verify(s_v))
                     .collect();
             }
             
+
+
             HashSet::new()
     
     }
@@ -213,16 +215,16 @@ mod test {
         
         let sol_a = the_a.solve();
 
-        println!("{:?}",&sol_a);
+        println!("theorem: {} sol:{:?}",&the_a,&sol_a);
 
         let sol_b = the_b.solve();
 
-        println!("{:?}",&sol_b);
+        println!("theorem: {} sol:{:?}",&the_a,&sol_b);
 
         let sols:HashSet<Vector> = sol_a.union(&sol_b).cloned().collect();
 
         println!("{:?}",sols);
-        assert!(false);
+        assert!(!sols.is_empty());
 
     }
 }

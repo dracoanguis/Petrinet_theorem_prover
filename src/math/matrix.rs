@@ -47,7 +47,7 @@ impl Matrix {
             panic!("Index out of boundary")
         }
 
-        self.data[row].index(col)
+        self.data[row][col]
     }
 
     pub fn is_empty(&self) -> bool {

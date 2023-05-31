@@ -1,8 +1,8 @@
 //! Vector module
 
-use std::{hash::Hash, ops};
+use std::{hash::Hash, ops::{self, Index}};
 
-#[derive(Debug, Eq)]
+#[derive(Debug, Eq, Clone)]
 pub struct Vector {
     data: Vec<isize>,
 }
@@ -127,13 +127,13 @@ impl Into<Vec<isize>> for &Vector {
     }
 }
 
-impl Clone for Vector {
-    fn clone(&self) -> Self {
-        Vector {
-            data: self.data.clone(),
-        }
-    }
-}
+// impl Clone for Vector {
+//     fn clone(&self) -> Self {
+//         Vector {
+//             data: self.data.clone(),
+//         }
+//     }
+// }
 
 impl std::fmt::Display for Vector {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -150,6 +150,13 @@ impl std::fmt::Display for Vector {
 impl Hash for Vector {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.data.hash(state);
+    }
+}
+
+impl Index<usize> for Vector {
+    type Output = isize;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
     }
 }
 
@@ -176,9 +183,9 @@ impl Vector {
         self.data.iter().sum()
     }
 
-    pub fn index(&self, a: usize) -> isize {
-        self.data[a]
-    }
+    // pub fn index(&self, a: usize) -> isize {
+    //     self.data[a]
+    // }
 
     pub fn set_at(&self, index: usize, value: isize) -> Self {
         let mut new = self.clone();

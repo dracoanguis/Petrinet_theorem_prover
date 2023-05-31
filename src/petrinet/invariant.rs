@@ -48,7 +48,7 @@ impl<'a> std::fmt::Display for Invariant<'a> {
         let mut first = true;
 
         for i in 0..self.weights.len() {
-            let val = self.weights.index(i);
+            let val = self.weights[i];
             if val == 0 {
                 continue;
             } else {

@@ -62,7 +62,7 @@ pub trait Equation: Sized + Debug {
 
         //We choose the first non-zero
         for i in 0..w_init.len() {
-            let w = w_init.index(i);
+            let w = w_init[i];
             if w != 0 {
                 for s in (0..=(r_init / w)).rev() {
                     let sub_eq = PartialEquation {

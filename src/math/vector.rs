@@ -1,24 +1,24 @@
 //! Vector module
 
-use std::{hash::Hash, ops::{self, Index}};
+use std::{hash::Hash, ops::{Add, Mul, Div, Sub, Index}, fmt::Display, iter::Sum};
 
 #[derive(Debug, Eq, Clone)]
-pub struct Vector {
-    data: Vec<isize>,
+pub struct Vector<T> {
+    data: Vec<T>,
 }
 
-impl ops::Mul<&Vector> for isize {
-    type Output = Vector;
+impl<T: Mul<Output = T>> Mul<&Vector<T>> for T {
+    type Output = Vector<T>;
 
-    fn mul(self, rhs: &Vector) -> Self::Output {
+    fn mul(self, rhs: &Vector<T>) -> Self::Output {
         Vector {
             data: rhs.data.iter().map(|r| self * r).collect(),
         }
     }
 }
 
-impl ops::Mul<isize> for &Vector {
-    type Output = Vector;
+impl<T: Mul<Output = T>> Mul<T> for &Vector<T> {
+    type Output = Vector<T>;
 
     fn mul(self, rhs: isize) -> Self::Output {
         Vector {
@@ -27,8 +27,8 @@ impl ops::Mul<isize> for &Vector {
     }
 }
 
-impl ops::Mul for &Vector {
-    type Output = Vector;
+impl<T: Mul<Output = T>> Mul for &Vector<T> {
+    type Output = Vector<T>;
 
     fn mul(self, rhs: Self) -> Self::Output {
         Vector {
@@ -42,8 +42,8 @@ impl ops::Mul for &Vector {
     }
 }
 
-impl ops::Div<isize> for &Vector {
-    type Output = Vector;
+impl<T: Div<Output = T>> Div<T> for &Vector<T> {
+    type Output = Vector<T>;
 
     fn div(self, rhs: isize) -> Self::Output {
         Vector {
@@ -52,8 +52,8 @@ impl ops::Div<isize> for &Vector {
     }
 }
 
-impl ops::Div for &Vector {
-    type Output = Vector;
+impl<T: Div<Output = T>> Div for &Vector<T> {
+    type Output = Vector<T>;
 
     fn div(self, rhs: Self) -> Self::Output {
         Vector {
@@ -67,8 +67,8 @@ impl ops::Div for &Vector {
     }
 }
 
-impl ops::Add for &Vector {
-    type Output = Vector;
+impl<T: Add<Output = T>> Add for &Vector<T> {
+    type Output = Vector<T>;
 
     fn add(self, rhs: Self) -> Self::Output {
         Vector {
@@ -82,8 +82,8 @@ impl ops::Add for &Vector {
     }
 }
 
-impl ops::Sub for &Vector {
-    type Output = Vector;
+impl<T: Sub<Output = T>> Sub for &Vector<T> {
+    type Output = Vector<T>;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Vector {
@@ -97,31 +97,31 @@ impl ops::Sub for &Vector {
     }
 }
 
-impl PartialEq for Vector {
+impl<T: PartialEq> PartialEq for Vector<T> {
     fn eq(&self, other: &Self) -> bool {
         self.len() == other.len() && self.data.iter().zip(other.data.iter()).all(|(l, r)| l == r)
     }
 }
 
-impl From<Vec<isize>> for Vector {
+impl From<Vec<isize>> for Vector<isize> {
     fn from(vec: Vec<isize>) -> Self {
         Vector { data: vec }
     }
 }
 
-impl From<&Vec<isize>> for Vector {
+impl From<&Vec<isize>> for Vector<isize> {
     fn from(vec: &Vec<isize>) -> Self {
         Vector { data: vec.clone() }
     }
 }
 
-impl Into<Vec<isize>> for Vector {
+impl Into<Vec<isize>> for Vector<isize> {
     fn into(self) -> Vec<isize> {
         self.data
     }
 }
 
-impl Into<Vec<isize>> for &Vector {
+impl Into<Vec<isize>> for &Vector<isize> {
     fn into(self) -> Vec<isize> {
         self.data.clone()
     }
@@ -135,7 +135,7 @@ impl Into<Vec<isize>> for &Vector {
 //     }
 // }
 
-impl std::fmt::Display for Vector {
+impl<T: Display> std::fmt::Display for Vector<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[")?;
         for i in self.data.iter() {
@@ -147,25 +147,20 @@ impl std::fmt::Display for Vector {
     }
 }
 
-impl Hash for Vector {
+impl<T: Hash> Hash for Vector<T> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.data.hash(state);
     }
 }
 
-impl Index<usize> for Vector {
-    type Output = isize;
+impl<T> Index<usize> for Vector<T> {
+    type Output = T;
     fn index(&self, index: usize) -> &Self::Output {
         &self.data[index]
     }
 }
 
-impl Vector {
-    pub fn new(size: usize) -> Self {
-        Vector {
-            data: vec![0; size],
-        }
-    }
+impl<T> Vector<T> {
 
     pub fn gcd(&self) -> isize {
         self.data
@@ -179,15 +174,11 @@ impl Vector {
         self.data.len()
     }
 
-    pub fn sum(&self) -> isize {
-        self.data.iter().sum()
-    }
-
     // pub fn index(&self, a: usize) -> isize {
     //     self.data[a]
     // }
 
-    pub fn set_at(&self, index: usize, value: isize) -> Self {
+    pub fn set_at(&self, index: usize, value: T) -> Self {
         let mut new = self.clone();
         new.data[index] = value;
         return new;
@@ -201,6 +192,22 @@ impl Vector {
         self.data.truncate(len)
     }
 }
+
+impl<T: Default> Vector<T> {
+    pub fn new(size: usize) -> Self {
+        Vector {
+            data: vec![Default::default(); size],
+        }
+    }
+}
+
+impl<T: Sum> Vector<T> {
+    pub fn sum(&self) -> T {
+        self.data.iter().sum()
+    }
+}
+
+
 
 pub fn gcd(a: usize, b: usize) -> usize {
     if a == b {

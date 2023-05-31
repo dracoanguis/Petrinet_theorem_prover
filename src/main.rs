@@ -2,7 +2,7 @@ mod math;
 mod petrinet;
 
 use crate::petrinet::arc::*;
-use crate::petrinet::equation::Equation;
+// use crate::petrinet::equation::Equation;
 use crate::petrinet::petrinet::*;
 use math::Matrix;
 

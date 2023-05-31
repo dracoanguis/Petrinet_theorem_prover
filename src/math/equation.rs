@@ -5,7 +5,7 @@ use std::{collections::HashSet, fmt::Debug, ops::{Mul, Div}, iter::Sum};
 use crate::math::{Gcd, Vector};
 
 #[derive(Debug)]
-pub(super) struct PartialEquation {
+pub struct PartialEquation {
     weights: Vector<isize>,
     result: isize,
 }

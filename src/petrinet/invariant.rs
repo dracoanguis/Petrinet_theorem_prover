@@ -1,9 +1,9 @@
 //! Invariant module
 
-use std::{fmt::Display, ops::Add, hash::{Hash, self}};
+use std::{ops::Add, hash::{Hash, self}};
 
-use super::{arc::*, equation::Equation, petrinet::Marking};
-use crate::math::{Vector};
+use super::{arc::*, petrinet::Marking};
+use crate::math::{Vector, Equation};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Invariant<'a> {

@@ -2,9 +2,9 @@
 
 use std::collections::HashSet;
 
-use crate::{math::Vector, petrinet::petrinet::InstanciedPetrinet};
+use crate::{math::Vector, math::equation::{Equation, PartialEquation}};
 
-use super::{equation::{Equation, PartialEquation}, invariant::InstanciedInvariant};
+use super::{petrinet::InstanciedPetrinet};
 
 #[derive(Debug)]
 enum TheoremKind {

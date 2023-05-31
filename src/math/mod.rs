@@ -8,3 +8,5 @@ pub use vector::Vector;
 pub mod gcd;
 pub use gcd::Gcd;
 
+pub mod equation;
+pub use equation::Equation;

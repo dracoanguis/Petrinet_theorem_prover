@@ -2,32 +2,35 @@
 
 use std::{hash::Hash, ops::{Add, Mul, Div, Sub, Index}, fmt::Display, iter::Sum};
 
-#[derive(Debug, Eq, Clone)]
+use super::gcd::Gcd;
+
+#[derive(Debug, Eq)]
 pub struct Vector<T> {
     data: Vec<T>,
 }
 
-impl<T: Mul<Output = T>> Mul<&Vector<T>> for T {
+// Not usable because of theorical multiple definition, sadly see: https://rust-lang.github.io/rfcs/2451-re-rebalancing-coherence.html#concrete-orphan-rules
+// impl<T: Mul<Output = T>> Mul<&Vector<T>> for T {
+//     type Output = Vector<T>;
+
+//     fn mul(self, rhs: &Vector<T>) -> Self::Output {
+//         Vector {
+//             data: rhs.data.iter().map(|r| self * r).collect(),
+//         }
+//     }
+// }
+
+impl<T: Copy+Mul<Output = T>> Mul<T> for &Vector<T> {
     type Output = Vector<T>;
 
-    fn mul(self, rhs: &Vector<T>) -> Self::Output {
-        Vector {
-            data: rhs.data.iter().map(|r| self * r).collect(),
-        }
-    }
-}
-
-impl<T: Mul<Output = T>> Mul<T> for &Vector<T> {
-    type Output = Vector<T>;
-
-    fn mul(self, rhs: isize) -> Self::Output {
+    fn mul(self, rhs: T) -> Self::Output {
         Vector {
             data: self.data.iter().map(|&l| l * rhs).collect(),
         }
     }
 }
 
-impl<T: Mul<Output = T>> Mul for &Vector<T> {
+impl<T: Copy+Mul<Output = T>> Mul for &Vector<T> {
     type Output = Vector<T>;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -36,23 +39,23 @@ impl<T: Mul<Output = T>> Mul for &Vector<T> {
                 .data
                 .iter()
                 .zip(rhs.data.iter())
-                .map(|(l, r)| l * r)
+                .map(|(&l, &r)| l * r)
                 .collect(),
         }
     }
 }
 
-impl<T: Div<Output = T>> Div<T> for &Vector<T> {
+impl<T: Copy+Div<Output = T>> Div<T> for &Vector<T> {
     type Output = Vector<T>;
 
-    fn div(self, rhs: isize) -> Self::Output {
+    fn div(self, rhs: T) -> Self::Output {
         Vector {
             data: self.data.iter().map(|&l| l / rhs).collect(),
         }
     }
 }
 
-impl<T: Div<Output = T>> Div for &Vector<T> {
+impl<T: Copy+Div<Output = T>> Div for &Vector<T> {
     type Output = Vector<T>;
 
     fn div(self, rhs: Self) -> Self::Output {
@@ -67,7 +70,7 @@ impl<T: Div<Output = T>> Div for &Vector<T> {
     }
 }
 
-impl<T: Add<Output = T>> Add for &Vector<T> {
+impl<T: Copy+Add<Output = T>> Add for &Vector<T> {
     type Output = Vector<T>;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -82,7 +85,7 @@ impl<T: Add<Output = T>> Add for &Vector<T> {
     }
 }
 
-impl<T: Sub<Output = T>> Sub for &Vector<T> {
+impl<T: Copy+Sub<Output = T>> Sub for &Vector<T> {
     type Output = Vector<T>;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -127,14 +130,6 @@ impl Into<Vec<isize>> for &Vector<isize> {
     }
 }
 
-// impl Clone for Vector {
-//     fn clone(&self) -> Self {
-//         Vector {
-//             data: self.data.clone(),
-//         }
-//     }
-// }
-
 impl<T: Display> std::fmt::Display for Vector<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[")?;
@@ -155,33 +150,47 @@ impl<T: Hash> Hash for Vector<T> {
 
 impl<T> Index<usize> for Vector<T> {
     type Output = T;
+
     fn index(&self, index: usize) -> &Self::Output {
         &self.data[index]
     }
 }
 
-impl<T> Vector<T> {
+impl<T: Copy+Default> Vector<T> {
+    pub fn new(size: usize) -> Self {
+        Vector {
+            data: vec![Default::default(); size],
+        }
+    }
+}
 
-    pub fn gcd(&self) -> isize {
+impl<T: Copy+Sum> Vector<T> {
+    pub fn sum(&self) -> T {
+        self.clone().data.into_iter().sum()
+    }
+}
+
+impl<T: Copy+Gcd>  Vector<T> {
+    pub fn gcd(&self) -> T {
         self.data
             .clone()
             .into_iter()
-            .reduce(|a, b| (gcd(a.unsigned_abs(), b.unsigned_abs())) as isize)
+            .reduce(|a, b| a.gcd(b))
             .unwrap()
     }
+}
 
-    pub fn len(&self) -> usize {
-        self.data.len()
+impl<T: Clone> Clone for Vector<T> {
+    fn clone(&self) -> Self {
+        Vector { data: self.data.clone() }       
     }
+} 
 
-    // pub fn index(&self, a: usize) -> isize {
-    //     self.data[a]
-    // }
-
+impl<T: Clone+Copy> Vector<T> {
     pub fn set_at(&self, index: usize, value: T) -> Self {
-        let mut new = self.clone();
-        new.data[index] = value;
-        return new;
+        let mut r = self.clone();
+        r.data[index] = value;
+        return r;
     }
 
     pub(super) fn rotate_right(&mut self, k: usize) {
@@ -193,45 +202,10 @@ impl<T> Vector<T> {
     }
 }
 
-impl<T: Default> Vector<T> {
-    pub fn new(size: usize) -> Self {
-        Vector {
-            data: vec![Default::default(); size],
-        }
+impl<T> Vector<T> {
+    pub fn len(&self) -> usize {
+        self.data.len()
     }
-}
-
-impl<T: Sum> Vector<T> {
-    pub fn sum(&self) -> T {
-        self.data.iter().sum()
-    }
-}
-
-
-
-pub fn gcd(a: usize, b: usize) -> usize {
-    if a == b {
-        return a;
-    }
-    if a == 0 {
-        return b;
-    }
-    if b == 0 {
-        return a;
-    }
-    if a % 2 == 0 {
-        if b % 2 == 0 {
-            return gcd(a >> 1, b >> 1) << 1;
-        }
-        return gcd(a >> 1, b);
-    }
-    if b % 2 == 0 {
-        return gcd(a, b >> 1);
-    }
-    if a > b {
-        return gcd(a.abs_diff(b) >> 1, b);
-    }
-    return gcd(a, b.abs_diff(a) >> 1);
 }
 
 #[cfg(test)]
@@ -257,7 +231,7 @@ mod test {
     #[test]
     fn test_mul_i() {
         let v = Vector::from(vec![1, 2, 3]);
-        let v2 = 2 * &v;
+        let v2 = &v*2;
         let v3 = Vector::from(vec![2, 4, 6]);
         assert_eq!(v2, v3);
     }

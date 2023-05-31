@@ -7,7 +7,7 @@ use std::ops;
 pub struct Matrix {
     rows: usize,
     cols: usize,
-    data: Vec<Vector>,
+    data: Vec<Vector<isize>>,
 }
 
 impl Matrix {
@@ -54,7 +54,7 @@ impl Matrix {
         self.rows == 0 || self.cols == 0
     }
 
-    fn append_row(&mut self, line: Vector) {
+    fn append_row(&mut self, line: Vector<isize>) {
         self.data.push(line);
         self.rows += 1;
     }
@@ -97,7 +97,7 @@ impl Matrix {
                     }
                     if d_1.signum() != d_2.signum() {
                         let mut new_line =
-                            &(d_2.abs() * &d.data[f_row]) + &(d_1.abs() * &d.data[s_row]);
+                            &(&d.data[f_row]*d_2.abs()) + &(&d.data[s_row]*d_1.abs());
                         new_line = &new_line / new_line.gcd();
                         // println!("{}:{} with {} result {:?}",col,f_row,s_row,new_line);
                         d.append_row(new_line);
@@ -120,7 +120,7 @@ impl Matrix {
         Some(d)
     }
 
-    pub fn get_vectors(&self) -> Vec<Vector> {
+    pub fn get_vectors(&self) -> Vec<Vector<isize>> {
         self.data.clone()
     }
 }

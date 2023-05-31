@@ -1,17 +1,17 @@
 //! Equation trait definition, with default resolution
 
-use std::{collections::HashSet, fmt::Debug};
+use std::{collections::HashSet, fmt::Debug, ops::{Mul, Div}, iter::Sum};
 
-use crate::math::{gcd, Vector};
+use crate::math::{Gcd, Vector};
 
 #[derive(Debug)]
 pub(super) struct PartialEquation {
-    weights: Vector,
+    weights: Vector<isize>,
     result: isize,
 }
 
 impl Equation for PartialEquation {
-    fn get_weights(&self) -> Vector {
+    fn get_weights(&self) -> Vector<isize> {
         self.weights.clone()
     }
 
@@ -21,7 +21,7 @@ impl Equation for PartialEquation {
 }
 
 impl PartialEquation {
-    pub fn new(weights: &Vector, result: isize) -> Self {
+    pub fn new(weights: &Vector<isize>, result: isize) -> Self {
         PartialEquation {
             weights: weights.clone(),
             result,
@@ -30,21 +30,18 @@ impl PartialEquation {
 }
 
 pub trait Equation: Sized + Debug {
-    fn get_weights(&self) -> Vector;
+    fn get_weights(&self) -> Vector<isize>;
     fn get_result(&self) -> isize;
 
     fn get_simplify_factor(&self) -> isize {
-        gcd(
-            self.get_weights().gcd() as usize,
-            self.get_result() as usize,
-        ) as isize
+        self.get_weights().gcd().gcd(self.get_result())
     }
 
-    fn verify(&self, solution_vector: &Vector) -> bool {
+    fn verify(&self, solution_vector: &Vector<isize>) -> bool {
         (&self.get_weights() * solution_vector).sum() == self.get_result()
     }
 
-    fn solve(&self) -> HashSet<Vector> {
+    fn solve(&self) -> HashSet<Vector<isize>> {
         // We first get the parameters and simplify
         let s_f = self.get_simplify_factor();
 
@@ -63,7 +60,7 @@ pub trait Equation: Sized + Debug {
         //We choose the first non-zero
         for i in 0..w_init.len() {
             let w = w_init[i];
-            if w != 0 {
+            if w != Default::default() {
                 for s in (0..=(r_init / w)).rev() {
                     let sub_eq = PartialEquation {
                         weights: w_init.set_at(i, 0),

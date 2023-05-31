@@ -17,12 +17,12 @@ enum TheoremKind {
 pub struct Theorem<'a> {
     over: &'a InstanciedPetrinet<'a>,
     kind: TheoremKind,
-    weights: Vector,
+    weights: Vector<isize>,
     result: isize,
 }
 
 impl<'a> Equation for Theorem<'a> {
-    fn get_weights(&self) -> Vector {
+    fn get_weights(&self) -> Vector<isize> {
         self.weights.clone()
     }
 
@@ -30,7 +30,7 @@ impl<'a> Equation for Theorem<'a> {
         self.result
     }
 
-    fn verify(&self, solution_vector: &Vector) -> bool {
+    fn verify(&self, solution_vector: &Vector<isize>) -> bool {
         match self.kind {
             TheoremKind::Equality => {
                 PartialEquation::new(&self.weights, self.result).verify(solution_vector)
@@ -40,7 +40,7 @@ impl<'a> Equation for Theorem<'a> {
         }
     }
 
-    fn solve(&self) -> HashSet<Vector> {
+    fn solve(&self) -> HashSet<Vector<isize>> {
         // let sol_set = match self.kind {
         //     TheoremKind::Equality => {
         //         let set = PartialEquation::new(&self.weights, self.result).solve();
@@ -84,19 +84,19 @@ impl<'a> Equation for Theorem<'a> {
 }
 
 impl<'a> Theorem<'a> {
-    fn new(over: &'a InstanciedPetrinet, kind: TheoremKind, weights: Vector, result: isize) -> Self {
+    fn new(over: &'a InstanciedPetrinet, kind: TheoremKind, weights: Vector<isize>, result: isize) -> Self {
         Theorem { over, kind, weights, result }
     }
 
-    pub fn new_eq(over: &'a InstanciedPetrinet,weights: Vector, result: isize) -> Self {
+    pub fn new_eq(over: &'a InstanciedPetrinet,weights: Vector<isize>, result: isize) -> Self {
         Theorem { over, kind: TheoremKind::Equality, weights, result }
     }
 
-    pub fn new_ineq(over: &'a InstanciedPetrinet, weights: Vector, result: isize) -> Self {
+    pub fn new_ineq(over: &'a InstanciedPetrinet, weights: Vector<isize>, result: isize) -> Self {
         Theorem { over, kind: TheoremKind::Inequality, weights, result }
     }
 
-    pub fn new_strict_ineq(over: &'a InstanciedPetrinet,weights: Vector, result: isize) -> Self {
+    pub fn new_strict_ineq(over: &'a InstanciedPetrinet,weights: Vector<isize>, result: isize) -> Self {
         Theorem { over, kind: TheoremKind::InequalityStrict, weights, result }
     }
 }
@@ -221,7 +221,7 @@ mod test {
 
         println!("theorem: {} sol:{:?}",&the_a,&sol_b);
 
-        let sols:HashSet<Vector> = sol_a.union(&sol_b).cloned().collect();
+        let sols:HashSet<Vector<isize>> = sol_a.union(&sol_b).cloned().collect();
 
         println!("New sols: {:?}",sols);
         assert!(sols.is_empty());

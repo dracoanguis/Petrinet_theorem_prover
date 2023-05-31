@@ -3,12 +3,12 @@
 use std::{fmt::Display, ops::Add, hash::{Hash, self}};
 
 use super::{arc::*, equation::Equation, petrinet::Marking};
-use crate::math::{gcd, Vector};
+use crate::math::{Vector};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Invariant<'a> {
     places: &'a Vec<Place>,
-    weights: Vector,
+    weights: Vector<isize>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -18,7 +18,7 @@ pub struct InstanciedInvariant<'a> {
 }
 
 impl<'a> Invariant<'a> {
-    pub fn new(places: &'a Vec<Place>, weights: Vector) -> Self {
+    pub fn new(places: &'a Vec<Place>, weights: Vector<isize>) -> Self {
         Invariant { places, weights }
     }
 
@@ -144,7 +144,7 @@ impl<'a> std::fmt::Display for InstanciedInvariant<'a> {
 }
 
 impl<'a> Equation for InstanciedInvariant<'a> {
-    fn get_weights(&self) -> Vector {
+    fn get_weights(&self) -> Vector<isize> {
         self.equation.weights.clone()
     }
 

@@ -143,7 +143,7 @@ impl<'a> std::fmt::Display for InstanciedInvariant<'a> {
     }
 }
 
-impl<'a> Equation for InstanciedInvariant<'a> {
+impl<'a> Equation<isize> for InstanciedInvariant<'a> {
     fn get_weights(&self) -> Vector<isize> {
         self.equation.weights.clone()
     }

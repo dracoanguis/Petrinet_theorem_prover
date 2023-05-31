@@ -21,7 +21,7 @@ pub struct Theorem<'a> {
     result: isize,
 }
 
-impl<'a> Equation for Theorem<'a> {
+impl<'a> Equation<isize> for Theorem<'a> {
     fn get_weights(&self) -> Vector<isize> {
         self.weights.clone()
     }

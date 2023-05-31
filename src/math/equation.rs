@@ -10,7 +10,7 @@ pub struct PartialEquation {
     result: isize,
 }
 
-impl Equation for PartialEquation {
+impl Equation<isize> for PartialEquation {
     fn get_weights(&self) -> Vector<isize> {
         self.weights.clone()
     }
@@ -79,18 +79,18 @@ impl PartialEquation {
     }
 }
 
-pub trait Equation: Sized + Debug {
-    fn get_weights(&self) -> Vector<isize>;
-    fn get_result(&self) -> isize;
+pub trait Equation<T: Gcd+Copy+Mul<Output = T>+Sum+PartialEq> {
+    fn get_weights(&self) -> Vector<T>;
+    fn get_result(&self) -> T;
 
-    fn get_simplify_factor(&self) -> isize {
+    fn get_simplify_factor(&self) -> T {
         self.get_weights().gcd().gcd(self.get_result())
     }
 
-    fn verify(&self, solution_vector: &Vector<isize>) -> bool {
+    fn verify(&self, solution_vector: &Vector<T>) -> bool {
         (&self.get_weights() * solution_vector).sum() == self.get_result()
     }
 
-    fn solve(&self) -> HashSet<Vector<isize>>;
-    
+    fn solve(&self) -> HashSet<Vector<T>>;
+
 }

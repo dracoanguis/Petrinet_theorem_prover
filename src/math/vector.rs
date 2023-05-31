@@ -106,30 +106,6 @@ impl<T: PartialEq> PartialEq for Vector<T> {
     }
 }
 
-impl From<Vec<isize>> for Vector<isize> {
-    fn from(vec: Vec<isize>) -> Self {
-        Vector { data: vec }
-    }
-}
-
-impl From<&Vec<isize>> for Vector<isize> {
-    fn from(vec: &Vec<isize>) -> Self {
-        Vector { data: vec.clone() }
-    }
-}
-
-impl Into<Vec<isize>> for Vector<isize> {
-    fn into(self) -> Vec<isize> {
-        self.data
-    }
-}
-
-impl Into<Vec<isize>> for &Vector<isize> {
-    fn into(self) -> Vec<isize> {
-        self.data.clone()
-    }
-}
-
 impl<T: Display> std::fmt::Display for Vector<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[")?;
@@ -184,7 +160,7 @@ impl<T: Clone> Clone for Vector<T> {
     fn clone(&self) -> Self {
         Vector { data: self.data.clone() }       
     }
-} 
+}
 
 impl<T: Clone+Copy> Vector<T> {
     pub fn set_at(&self, index: usize, value: T) -> Self {
@@ -205,6 +181,30 @@ impl<T: Clone+Copy> Vector<T> {
 impl<T> Vector<T> {
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+}
+
+impl From<Vec<isize>> for Vector<isize> {
+    fn from(vec: Vec<isize>) -> Self {
+        Vector { data: vec }
+    }
+}
+
+impl From<&Vec<isize>> for Vector<isize> {
+    fn from(vec: &Vec<isize>) -> Self {
+        Vector { data: vec.clone() }
+    }
+}
+
+impl Into<Vec<isize>> for Vector<isize> {
+    fn into(self) -> Vec<isize> {
+        self.data
+    }
+}
+
+impl Into<Vec<isize>> for &Vector<isize> {
+    fn into(self) -> Vec<isize> {
+        self.data.clone()
     }
 }
 

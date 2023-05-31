@@ -3,7 +3,7 @@
 use std::{ops::Add, hash::{Hash, self}};
 
 use super::{arc::*, petrinet::Marking};
-use crate::math::{Vector, Equation};
+use crate::math::{Vector, Equation, equation::PartialEquation};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Invariant<'a> {
@@ -154,6 +154,10 @@ impl<'a> Equation for InstanciedInvariant<'a> {
 
     fn get_simplify_factor(&self) -> isize {
         self.equation.weights.gcd()
+    }
+
+    fn solve(&self) -> std::collections::HashSet<Vector<isize>> {
+        PartialEquation::new(&self.equation.weights, self.result).solve()
     }
 }
 

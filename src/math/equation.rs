@@ -18,28 +18,6 @@ impl Equation for PartialEquation {
     fn get_result(&self) -> isize {
         self.result
     }
-}
-
-impl PartialEquation {
-    pub fn new(weights: &Vector<isize>, result: isize) -> Self {
-        PartialEquation {
-            weights: weights.clone(),
-            result,
-        }
-    }
-}
-
-pub trait Equation: Sized + Debug {
-    fn get_weights(&self) -> Vector<isize>;
-    fn get_result(&self) -> isize;
-
-    fn get_simplify_factor(&self) -> isize {
-        self.get_weights().gcd().gcd(self.get_result())
-    }
-
-    fn verify(&self, solution_vector: &Vector<isize>) -> bool {
-        (&self.get_weights() * solution_vector).sum() == self.get_result()
-    }
 
     fn solve(&self) -> HashSet<Vector<isize>> {
         // We first get the parameters and simplify
@@ -89,4 +67,30 @@ pub trait Equation: Sized + Debug {
         // println!("self:{:?} sols:{:?}",self ,sols);
         sols
     }
+
+}
+
+impl PartialEquation {
+    pub fn new(weights: &Vector<isize>, result: isize) -> Self {
+        PartialEquation {
+            weights: weights.clone(),
+            result,
+        }
+    }
+}
+
+pub trait Equation: Sized + Debug {
+    fn get_weights(&self) -> Vector<isize>;
+    fn get_result(&self) -> isize;
+
+    fn get_simplify_factor(&self) -> isize {
+        self.get_weights().gcd().gcd(self.get_result())
+    }
+
+    fn verify(&self, solution_vector: &Vector<isize>) -> bool {
+        (&self.get_weights() * solution_vector).sum() == self.get_result()
+    }
+
+    fn solve(&self) -> HashSet<Vector<isize>>;
+    
 }

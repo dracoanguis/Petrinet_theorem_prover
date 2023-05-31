@@ -2,7 +2,7 @@
 
 use std::{hash::Hash, ops::{Add, Mul, Div, Sub, Index}, fmt::Display, iter::Sum};
 
-use super::gcd::Gcd;
+use super::{Gcd};
 
 #[derive(Debug, Eq)]
 pub struct Vector<T> {
@@ -181,6 +181,10 @@ impl<T: Clone+Copy> Vector<T> {
 impl<T> Vector<T> {
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+
+    pub fn new_from_vec(data: Vec<T>) -> Self {
+        Vector { data }
     }
 }
 

@@ -223,8 +223,8 @@ mod test {
 
         let sols:HashSet<Vector> = sol_a.union(&sol_b).cloned().collect();
 
-        println!("{:?}",sols);
-        assert!(!sols.is_empty());
+        println!("New sols: {:?}",sols);
+        assert!(sols.is_empty());
 
     }
 }

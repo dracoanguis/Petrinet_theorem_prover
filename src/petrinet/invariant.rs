@@ -1,9 +1,13 @@
 //! Invariant module
 
-use std::{fmt::Display, ops::Add, hash::{Hash, self}};
+use std::{
+    fmt::Display,
+    hash::{self, Hash},
+    ops::Add,
+};
 
 use super::{arc::*, equation::Equation, petrinet::Marking};
-use crate::math::{gcd, Vector};
+use crate::math::{gcd, Vector, ZNumber};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Invariant<'a> {
@@ -49,11 +53,11 @@ impl<'a> std::fmt::Display for Invariant<'a> {
 
         for i in 0..self.weights.len() {
             let val = self.weights.index(i);
-            if val == 0 {
+            if val == ZNumber::from(0) {
                 continue;
             } else {
                 match val {
-                    1 => {
+                    ZNumber::Integer(1) => {
                         if !first {
                             write!(f, "+")?;
                         } else {
@@ -61,7 +65,7 @@ impl<'a> std::fmt::Display for Invariant<'a> {
                         }
                         write!(f, "{}", self.places[i].name)?;
                     }
-                    -1 => {
+                    ZNumber::Integer(-1) => {
                         if !first {
                             write!(f, "-")?;
                         } else {
@@ -108,7 +112,7 @@ impl<'a> InstanciedInvariant<'a> {
                 .collect(),
         );
 
-        println!("{}",&values);
+        println!("{}", &values);
 
         let result = (&equation.weights * &values).sum();
 

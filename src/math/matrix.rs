@@ -2,6 +2,7 @@
 
 use super::vector::Vector;
 use std::ops;
+use super::z_number::ZNumber;
 
 #[derive(Debug)]
 pub struct Matrix {
@@ -42,7 +43,7 @@ impl Matrix {
         Matrix::from(new_data)
     }
 
-    pub fn index(&self, row: usize, col: usize) -> isize {
+    pub fn index(&self, row: usize, col: usize) -> super::z_number::ZNumber {
         if self.cols < col || self.rows < row {
             panic!("Index out of boundary")
         }
@@ -86,13 +87,13 @@ impl Matrix {
             for f_row in 0..c_row {
                 let d_1 = d.index(f_row, col);
 
-                if d_1 == 0 {
+                if d_1 == ZNumber::Integer(0) {
                     continue;
                 }
 
                 for s_row in f_row..c_row {
                     let d_2 = d.index(s_row, col);
-                    if d_2 == 0 {
+                    if d_2 == ZNumber::from(0) {
                         continue;
                     }
                     if d_1.signum() != d_2.signum() {
@@ -106,7 +107,7 @@ impl Matrix {
             }
 
             for row in (0..c_row).rev() {
-                if d.index(row, col) != 0 {
+                if d.index(row, col) != ZNumber::from(0) {
                     d.remove_row(row);
                 }
             }

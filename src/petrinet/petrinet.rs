@@ -275,10 +275,12 @@ mod test {
         let i_petri2 = petri2.instanciate(mark);
 
         assert_eq!(
-            i_petri2.i_invariants.iter()
-                .map(|ii| ii.solve().len() )
+            i_petri2
+                .i_invariants
+                .iter()
+                .map(|ii| ii.solve().len())
                 .sum::<usize>(),
-            35      
+            35
         );
     }
 }

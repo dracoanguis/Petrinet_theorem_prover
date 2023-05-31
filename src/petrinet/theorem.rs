@@ -4,7 +4,10 @@ use std::collections::HashSet;
 
 use crate::{math::Vector, petrinet::petrinet::InstanciedPetrinet};
 
-use super::{equation::{Equation, PartialEquation}, invariant::InstanciedInvariant};
+use super::{
+    equation::{Equation, PartialEquation},
+    invariant::InstanciedInvariant,
+};
 
 #[derive(Debug)]
 enum TheoremKind {
@@ -67,37 +70,64 @@ impl<'a> Equation for Theorem<'a> {
 
         // println!("theorem:{} sols:{:?}",&self,&sol_set);
 
-        if let Some(contraint_set) = self.over.i_invariants.clone().into_iter()
-            .reduce(|acc, cur| &acc+&cur )
+        if let Some(contraint_set) = self
+            .over
+            .i_invariants
+            .clone()
+            .into_iter()
+            .reduce(|acc, cur| &acc + &cur)
             .and_then(|super_inv| Some(super_inv.solve()))
-            {
-                return contraint_set.into_iter()
-                    .filter(|s_v| self.verify(s_v))
-                    .collect();
-            }
-            
+        {
+            return contraint_set
+                .into_iter()
+                .filter(|s_v| self.verify(s_v))
+                .collect();
+        }
 
-
-            HashSet::new()
-    
+        HashSet::new()
     }
 }
 
 impl<'a> Theorem<'a> {
-    fn new(over: &'a InstanciedPetrinet, kind: TheoremKind, weights: Vector, result: isize) -> Self {
-        Theorem { over, kind, weights, result }
+    fn new(
+        over: &'a InstanciedPetrinet,
+        kind: TheoremKind,
+        weights: Vector,
+        result: isize,
+    ) -> Self {
+        Theorem {
+            over,
+            kind,
+            weights,
+            result,
+        }
     }
 
-    pub fn new_eq(over: &'a InstanciedPetrinet,weights: Vector, result: isize) -> Self {
-        Theorem { over, kind: TheoremKind::Equality, weights, result }
+    pub fn new_eq(over: &'a InstanciedPetrinet, weights: Vector, result: isize) -> Self {
+        Theorem {
+            over,
+            kind: TheoremKind::Equality,
+            weights,
+            result,
+        }
     }
 
     pub fn new_ineq(over: &'a InstanciedPetrinet, weights: Vector, result: isize) -> Self {
-        Theorem { over, kind: TheoremKind::Inequality, weights, result }
+        Theorem {
+            over,
+            kind: TheoremKind::Inequality,
+            weights,
+            result,
+        }
     }
 
-    pub fn new_strict_ineq(over: &'a InstanciedPetrinet,weights: Vector, result: isize) -> Self {
-        Theorem { over, kind: TheoremKind::InequalityStrict, weights, result }
+    pub fn new_strict_ineq(over: &'a InstanciedPetrinet, weights: Vector, result: isize) -> Self {
+        Theorem {
+            over,
+            kind: TheoremKind::InequalityStrict,
+            weights,
+            result,
+        }
     }
 }
 
@@ -148,12 +178,12 @@ impl<'a> std::fmt::Display for Theorem<'a> {
         }
 
         match self.kind {
-            TheoremKind::Equality => write!(f," = ")?,
-            TheoremKind::Inequality => write!(f," <= ")?,
-            TheoremKind::InequalityStrict => write!(f," < ")?,
+            TheoremKind::Equality => write!(f, " = ")?,
+            TheoremKind::Inequality => write!(f, " <= ")?,
+            TheoremKind::InequalityStrict => write!(f, " < ")?,
         }
 
-        write!(f,"{}",self.result)?;
+        write!(f, "{}", self.result)?;
 
         Ok(())
     }
@@ -163,8 +193,8 @@ impl<'a> std::fmt::Display for Theorem<'a> {
 mod test {
 
     use super::*;
-    use crate::petrinet::petrinet::*;
     use crate::petrinet::arc::*;
+    use crate::petrinet::petrinet::*;
 
     #[test]
     fn test_equation() {
@@ -173,7 +203,7 @@ mod test {
         let pre_arcs = vec![
             places[0].link_cost_1(&transitions[0]),
             places[1].link_cost_1(&transitions[0]),
-            places[1].link(&transitions[3],4),
+            places[1].link(&transitions[3], 4),
             places[2].link_cost_1(&transitions[3]),
             places[3].link_cost_1(&transitions[2]),
             places[4].link_cost_1(&transitions[1]),
@@ -195,9 +225,9 @@ mod test {
         );
 
         if let Some(invs) = &petri3.invariants {
-            for i in invs.iter(){
-                println!("{}",i);
-            } 
+            for i in invs.iter() {
+                println!("{}", i);
+            }
         }
 
         let mark = petri3
@@ -207,24 +237,23 @@ mod test {
         let i_petri3 = petri3.instanciate(mark);
 
         for ii in i_petri3.i_invariants.iter() {
-            println!("{}",ii);
+            println!("{}", ii);
         }
 
-        let the_a = Theorem::new_eq(&i_petri3, Vector::from(vec![0,0,0,1,0]), 0);
-        let the_b = Theorem::new_eq(&i_petri3, Vector::from(vec![0,0,0,0,1]), 0);
-        
+        let the_a = Theorem::new_eq(&i_petri3, Vector::from(vec![0, 0, 0, 1, 0]), 0);
+        let the_b = Theorem::new_eq(&i_petri3, Vector::from(vec![0, 0, 0, 0, 1]), 0);
+
         let sol_a = the_a.solve();
 
-        println!("theorem: {} sol:{:?}",&the_a,&sol_a);
+        println!("theorem: {} sol:{:?}", &the_a, &sol_a);
 
         let sol_b = the_b.solve();
 
-        println!("theorem: {} sol:{:?}",&the_a,&sol_b);
+        println!("theorem: {} sol:{:?}", &the_a, &sol_b);
 
-        let sols:HashSet<Vector> = sol_a.union(&sol_b).cloned().collect();
+        let sols: HashSet<Vector> = sol_a.union(&sol_b).cloned().collect();
 
-        println!("New sols: {:?}",sols);
+        println!("New sols: {:?}", sols);
         assert!(sols.is_empty());
-
     }
 }

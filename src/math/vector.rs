@@ -2,9 +2,11 @@
 
 use std::{hash::Hash, ops};
 
+use super::z_number::ZNumber;
+
 #[derive(Debug, Eq)]
 pub struct Vector {
-    data: Vec<isize>,
+    data: Vec<ZNumber>,
 }
 
 impl ops::Mul<&Vector> for isize {
@@ -12,7 +14,11 @@ impl ops::Mul<&Vector> for isize {
 
     fn mul(self, rhs: &Vector) -> Self::Output {
         Vector {
-            data: rhs.data.iter().map(|r| self * r).collect(),
+            data: rhs
+                .data
+                .iter()
+                .map(|r| ZNumber::Integer(self) * *r)
+                .collect(),
         }
     }
 }
@@ -22,7 +28,11 @@ impl ops::Mul<isize> for &Vector {
 
     fn mul(self, rhs: isize) -> Self::Output {
         Vector {
-            data: self.data.iter().map(|&l| l * rhs).collect(),
+            data: self
+                .data
+                .iter()
+                .map(|&l| l * ZNumber::Integer(rhs))
+                .collect(),
         }
     }
 }
@@ -36,7 +46,7 @@ impl ops::Mul for &Vector {
                 .data
                 .iter()
                 .zip(rhs.data.iter())
-                .map(|(l, r)| l * r)
+                .map(|(l, r)| *l * *r)
                 .collect(),
         }
     }
@@ -47,7 +57,11 @@ impl ops::Div<isize> for &Vector {
 
     fn div(self, rhs: isize) -> Self::Output {
         Vector {
-            data: self.data.iter().map(|&l| l / rhs).collect(),
+            data: self
+                .data
+                .iter()
+                .map(|&l| l / ZNumber::Integer(rhs))
+                .collect(),
         }
     }
 }
@@ -105,25 +119,29 @@ impl PartialEq for Vector {
 
 impl From<Vec<isize>> for Vector {
     fn from(vec: Vec<isize>) -> Self {
-        Vector { data: vec }
+        Vector {
+            data: vec.iter().map(|i| ZNumber::from(*i)).collect(),
+        }
     }
 }
 
 impl From<&Vec<isize>> for Vector {
     fn from(vec: &Vec<isize>) -> Self {
-        Vector { data: vec.clone() }
+        Vector {
+            data: vec.iter().map(|i| ZNumber::from(*i)).collect(),
+        }
     }
 }
 
 impl Into<Vec<isize>> for Vector {
     fn into(self) -> Vec<isize> {
-        self.data
+        self.data.into_iter().map(|zn| zn.into()).collect()
     }
 }
 
 impl Into<Vec<isize>> for &Vector {
     fn into(self) -> Vec<isize> {
-        self.data.clone()
+        self.data.clone().into_iter().map(|zn| zn.into()).collect()
     }
 }
 
@@ -156,7 +174,13 @@ impl Hash for Vector {
 impl Vector {
     pub fn new(size: usize) -> Self {
         Vector {
-            data: vec![0; size],
+            data: vec![ZNumber::Integer(0); size],
+        }
+    }
+
+    pub fn new_inconsidered(size: usize) -> Self {
+        Vector {
+            data: vec![ZNumber::NonConsidered; size],
         }
     }
 
@@ -164,7 +188,8 @@ impl Vector {
         self.data
             .clone()
             .into_iter()
-            .reduce(|a, b| (gcd(a.unsigned_abs(), b.unsigned_abs())) as isize)
+            .map(|zn| zn.into())
+            .reduce(|a: isize, b| (gcd(a.unsigned_abs(), b.unsigned_abs())) as isize)
             .unwrap()
     }
 
@@ -173,14 +198,17 @@ impl Vector {
     }
 
     pub fn sum(&self) -> isize {
-        self.data.iter().sum()
+        self.data
+            .iter()
+            .fold(ZNumber::Integer(0), |acc, cur| acc + *cur)
+            .into()
     }
 
-    pub fn index(&self, a: usize) -> isize {
+    pub fn index(&self, a: usize) -> ZNumber {
         self.data[a]
     }
 
-    pub fn set_at(&self, index: usize, value: isize) -> Self {
+    pub fn set_at(&self, index: usize, value: ZNumber) -> Self {
         let mut new = self.clone();
         new.data[index] = value;
         return new;

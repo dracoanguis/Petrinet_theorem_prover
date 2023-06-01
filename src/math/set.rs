@@ -16,7 +16,7 @@ impl Set {
             data.push(Vector::new_0_into_n(vect));
         }
         let s = Self { data };
-        println!("{}", &s);
+        // println!("{}", &s);
         s
     }
 

@@ -197,7 +197,7 @@ impl<'a> std::fmt::Display for Theorem<'a> {
 }
 
 impl<'a> Theorem<'a> {
-    pub fn true_solve(&self) -> Set {
+    pub fn get_constraint(&self) -> Set {
         // let sol_set = match self.kind {
         //     TheoremKind::Equality => {
         //         let set = PartialEquation::new(&self.weights, self.result).solve();
@@ -272,6 +272,7 @@ mod test {
             post_arcs,
         );
 
+        println!("Invariants: ");
         if let Some(invs) = &petri3.invariants {
             for i in invs.iter() {
                 println!("{}", i);
@@ -283,6 +284,8 @@ mod test {
             .unwrap();
 
         let i_petri3 = petri3.instanciate(mark);
+
+        println!("Instancied Invariant:");
 
         for ii in i_petri3.i_invariants.iter() {
             println!("{}", ii);
@@ -301,7 +304,7 @@ mod test {
 
         // let sols:HashSet<Vector<isize>> = sol_a.union(&sol_b).cloned().collect();
 
-        let sols = the_a.true_solve();
+        let sols = the_a.get_constraint();
         println!("New constraints: {}", sols);
         assert!(false);
     }

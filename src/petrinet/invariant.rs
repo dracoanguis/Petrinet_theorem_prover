@@ -111,7 +111,7 @@ impl<'a> InstanciedInvariant<'a> {
                 .collect(),
         );
 
-        println!("{}", &values);
+        // println!("{}", &values);
 
         let result = (&equation.weights * &values).sum();
 

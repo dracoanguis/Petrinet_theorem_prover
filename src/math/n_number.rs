@@ -126,6 +126,15 @@ impl NNumber {
         }
     }
 
+    // pub fn union(&self, other: &Self) -> Option<NNumber> {
+    //     match self {
+    //         NNumber::N => Some(NNumber::N),
+    //         NNumber::Integer(s) => {
+
+    //         } 
+    //     }
+    // }
+
     // pub fn restrict_over(&self, bound: &NNumber) -> Option<Self> {
     //     match bound {
     //         NNumber::N => Some(*self),

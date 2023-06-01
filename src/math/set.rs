@@ -59,6 +59,25 @@ impl Set {
         Set { data: r_vec }
     }
 
+    pub fn union(&self, other: &Self) -> Self {
+        
+        let b_s =  if self.data.len() >= other.data.len() {
+            (self,other)
+        } else {
+            (other,self)
+        };
+
+        let mut n_data = b_s.0.data.clone();
+        n_data.reserve_exact(b_s.1.data.len());
+
+        for u in 0..b_s.1.data.len() {
+            if !b_s.0.include(&b_s.1.data[u]) {
+                n_data.push(b_s.1.data[u].clone());
+            }
+        }
+        Self { data: n_data }
+    }
+
 }
 
 impl PartialEq for Set {
@@ -104,5 +123,34 @@ mod test {
         ]);
 
         assert_eq!(&a.intersect(&b),&b);
+    }
+
+    #[test]
+    fn test_union_included() {
+        let a = Set::new_from_vec(vec![
+            Vector::new_from_vec(vec![NNumber::N,NNumber::Integer(2)]),
+        ]);
+        let b = Set::new_from_vec(vec![
+            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(2)]),
+        ]);
+
+        assert_eq!(&a.union(&b),&a);
+    }
+
+    #[test]
+    fn test_union() {
+        let a = Set::new_from_vec(vec![
+            Vector::new_from_vec(vec![NNumber::N,NNumber::Integer(2)]),
+        ]);
+        let b = Set::new_from_vec(vec![
+            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(2)]),
+            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(4)]),
+        ]);
+        let c = Set::new_from_vec(vec![
+            Vector::new_from_vec(vec![NNumber::N,NNumber::Integer(2)]),
+            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(4)]),
+        ]);
+
+        assert_eq!(&a.union(&b),&c);
     }
 }

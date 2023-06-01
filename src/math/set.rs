@@ -16,11 +16,33 @@ impl Set {
         for vect in input_set {
             data.push(Vector::new_0_into_n(vect));
         }
-        Set { data }
+        let s = Self { data };
+        println!("{}",&s);
+        s
     }
 
     pub fn new_from_vec(data: Vec<Vector<NNumber>>) -> Self {
-        Set { data }
+        let s = Self { data };
+        println!("{}",s);
+        s
+    }
+
+    pub fn new_from_set(input_set: HashSet<Vector<isize>>) -> Self {
+        let mut data = Vec::new();
+        data.reserve(input_set.len());
+
+        for vect in input_set {
+            data.push(Vector::from(vect));
+        }
+        Self { data }
+    }
+
+    pub fn new() -> Self {
+        Self { data: Vec::new() }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
     }
 
     pub fn include(&self, other: &Vector<NNumber>) -> bool {
@@ -56,7 +78,11 @@ impl Set {
             }
         }
 
-        Set { data: r_vec }
+        let s = Self { data: r_vec };
+        println!("{}",&s);
+        return s;
+
+        // Set { data: r_vec }
     }
 
     pub fn union(&self, other: &Self) -> Self {
@@ -83,6 +109,16 @@ impl Set {
 impl PartialEq for Set {
     fn eq(&self, other: &Self) -> bool {
         self.include_set(other) && other.include_set(self)
+    }
+}
+
+impl std::fmt::Display for Set {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"{{")?;
+        for u in 0..self.data.len() {
+            write!(f,"{}",self.data[u])?;
+        }
+        write!(f,"}}")
     }
 }
 

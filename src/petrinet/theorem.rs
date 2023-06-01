@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use crate::{math::Vector, math::equation::{Equation, PartialEquation}};
+use crate::{math::Vector, math::{equation::{Equation, PartialEquation}, set::Set}};
 
 use super::{petrinet::InstanciedPetrinet};
 
@@ -159,6 +159,45 @@ impl<'a> std::fmt::Display for Theorem<'a> {
     }
 }
 
+
+impl<'a> Theorem<'a> {
+    pub fn true_solve(&self) -> Set {
+        // let sol_set = match self.kind {
+        //     TheoremKind::Equality => {
+        //         let set = PartialEquation::new(&self.weights, self.result).solve();
+        //         println!("theorem: sol: {:?}",set);
+        //         set
+        //     },
+        //     TheoremKind::Inequality => {
+        //         let mut set = HashSet::new();
+        //         for sub_res in 0..(self.result + 1) {
+        //             let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
+        //             set.extend(sub_sols.drain());
+        //         }
+        //         set
+        //     }
+        //     TheoremKind::InequalityStrict => {
+        //         let mut set = HashSet::new();
+        //         for sub_res in 0..self.result {
+        //             let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
+        //             set.extend(sub_sols.drain());
+        //         }
+        //         set
+        //     }
+        // };
+
+        if let Some(constraint_set) = self.over.i_invariants.clone().into_iter()
+            .map(|ii| ii.true_solve())
+            .reduce(|acc,cur| acc.intersect(&cur))
+            {
+                return constraint_set;
+            } else {
+                return Set::new();
+            }
+
+    }
+}
+
 #[cfg(test)]
 mod test {
 
@@ -211,20 +250,21 @@ mod test {
         }
 
         let the_a = Theorem::new_eq(&i_petri3, Vector::from(vec![0,0,0,1,0]), 0);
-        let the_b = Theorem::new_eq(&i_petri3, Vector::from(vec![0,0,0,0,1]), 0);
+        // let the_b = Theorem::new_eq(&i_petri3, Vector::from(vec![0,0,0,0,1]), 0);
         
-        let sol_a = the_a.solve();
+        // let sol_a = the_a.solve();
 
-        println!("theorem: {} sol:{:?}",&the_a,&sol_a);
+        // println!("theorem: {} sol:{:?}",&the_a,&sol_a);
 
-        let sol_b = the_b.solve();
+        // let sol_b = the_b.solve();
 
-        println!("theorem: {} sol:{:?}",&the_a,&sol_b);
+        // println!("theorem: {} sol:{:?}",&the_a,&sol_b);
 
-        let sols:HashSet<Vector<isize>> = sol_a.union(&sol_b).cloned().collect();
+        // let sols:HashSet<Vector<isize>> = sol_a.union(&sol_b).cloned().collect();
 
-        println!("New sols: {:?}",sols);
-        assert!(sols.is_empty());
+        let sols = the_a.true_solve();
+        println!("New constraints: {:?}",sols);
+        assert!(false);
 
     }
 }

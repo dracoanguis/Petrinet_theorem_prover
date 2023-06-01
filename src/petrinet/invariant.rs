@@ -3,7 +3,7 @@
 use std::{ops::Add, hash::{Hash, self}};
 
 use super::{arc::*, petrinet::Marking};
-use crate::math::{Vector, Equation, equation::PartialEquation};
+use crate::math::{Vector, Equation, equation::PartialEquation, set::Set, NNumber};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Invariant<'a> {
@@ -158,6 +158,29 @@ impl<'a> Equation<isize> for InstanciedInvariant<'a> {
 
     fn solve(&self) -> std::collections::HashSet<Vector<isize>> {
         PartialEquation::new(&self.equation.weights, self.result).solve()
+    }
+}
+
+impl<'a> InstanciedInvariant<'a> {
+    pub fn true_solve(&self) -> Set {
+        let sols = self.solve();
+
+        let mut r_vec = Vec::new();
+        r_vec.reserve_exact(sols.len());
+
+        for vect in sols {
+            let mut sr_vec = Vec::new();
+            for u in 0..vect.len() {
+                if self.equation.weights[u] == 0 {
+                    sr_vec.push(NNumber::N);
+                } else {
+                    sr_vec.push(NNumber::Integer(vect[u] as usize));
+                }
+            }
+            r_vec.push(Vector::new_from_vec(sr_vec));
+        }
+
+        Set::new_from_vec(r_vec)
     }
 }
 

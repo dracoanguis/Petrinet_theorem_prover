@@ -263,7 +263,7 @@ mod test {
         // let sols:HashSet<Vector<isize>> = sol_a.union(&sol_b).cloned().collect();
 
         let sols = the_a.true_solve();
-        println!("New constraints: {:?}",sols);
+        println!("New constraints: {}",sols);
         assert!(false);
 
     }

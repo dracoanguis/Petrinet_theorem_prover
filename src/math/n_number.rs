@@ -58,6 +58,25 @@ impl Vector<NNumber> {
         true
     }
 
+    pub fn intersect(&self, other: &Vector<NNumber>) -> Option<Vector<NNumber>> {
+        if self.len() != other.len() {
+            panic!("Cannot check over different size vectors");
+        }
+
+        let mut data = Vec::new();
+
+        for u in 0..self.len() {
+            if let Some(r) = self[u].intersect(&other[u]) {
+                data.push(r);
+            } else {
+                return None;
+            }
+        }
+
+        Some(Vector::new_from_vec(data))
+    }
+
+
     // pub fn restrict_over(&self, bound: &Vector<NNumber>) -> Option<Self> {
     //     if self.len() != bound.len() {
     //         panic!("Cannot check over different size vectors");
@@ -96,6 +115,24 @@ impl NNumber {
         match i {
             0 => NNumber::N,
             n => NNumber::Integer(n as usize),
+        }
+    }
+
+    pub fn intersect(&self, other: &Self) -> Option<NNumber> {
+        match self {
+            NNumber::N => {
+                match other {
+                    NNumber::N => Some(NNumber::N),
+                    NNumber::Integer(_) => Some(*other),
+                }
+            },
+            NNumber::Integer(s) => {
+                match other {
+                    NNumber::N => Some(*self),
+                    NNumber::Integer(o) if o == s => Some(*self),
+                    _ => None,
+                }
+            }
         }
     }
 

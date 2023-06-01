@@ -61,6 +61,15 @@ impl Set {
         }
     }
 
+    fn intersect_vec(&self, vec: &Vector<NNumber>) -> Set {
+        Self { data: self.data.iter()
+            .map(|iv| iv.intersect(vec))
+            .filter(|op| op.is_some())
+            .map(|t_op| t_op.unwrap())
+            .collect()
+        }
+    }
+
     pub fn intersect(&self, other: &Self) -> Self {
         
         let b_s = if self.data.len() >= other.data.len() {
@@ -69,18 +78,14 @@ impl Set {
             (other,self)
         };
         
-        let mut r_vec = Vec::new();
-        r_vec.reserve(b_s.0.data.len());
+        let mut r_set = Self::new();
 
         for u in 0..b_s.1.data.len() {
-            if b_s.0.include(&b_s.1.data[u]) {
-                r_vec.push(b_s.1.data[u].clone());
-            }
+            r_set = r_set.union(&b_s.0.intersect_vec(&b_s.1.data[u]));
         }
 
-        let s = Self { data: r_vec };
-        println!("{}",&s);
-        return s;
+        // println!("{}",&r_set);
+        return r_set;
 
         // Set { data: r_vec }
     }

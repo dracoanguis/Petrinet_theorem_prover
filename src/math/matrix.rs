@@ -97,7 +97,7 @@ impl Matrix {
                     }
                     if d_1.signum() != d_2.signum() {
                         let mut new_line =
-                            &(&d.data[f_row]*d_2.abs()) + &(&d.data[s_row]*d_1.abs());
+                            &(&d.data[f_row] * d_2.abs()) + &(&d.data[s_row] * d_1.abs());
                         new_line = &new_line / new_line.gcd();
                         // println!("{}:{} with {} result {:?}",col,f_row,s_row,new_line);
                         d.append_row(new_line);

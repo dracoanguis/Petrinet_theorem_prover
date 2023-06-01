@@ -1,8 +1,13 @@
 //! Vector module
 
-use std::{hash::Hash, ops::{Add, Mul, Div, Sub, Index}, fmt::Display, iter::Sum};
+use std::{
+    fmt::Display,
+    hash::Hash,
+    iter::Sum,
+    ops::{Add, Div, Index, Mul, Sub},
+};
 
-use super::{Gcd};
+use super::Gcd;
 
 #[derive(Debug, Eq)]
 pub struct Vector<T> {
@@ -20,7 +25,7 @@ pub struct Vector<T> {
 //     }
 // }
 
-impl<T: Copy+Mul<Output = T>> Mul<T> for &Vector<T> {
+impl<T: Copy + Mul<Output = T>> Mul<T> for &Vector<T> {
     type Output = Vector<T>;
 
     fn mul(self, rhs: T) -> Self::Output {
@@ -30,7 +35,7 @@ impl<T: Copy+Mul<Output = T>> Mul<T> for &Vector<T> {
     }
 }
 
-impl<T: Copy+Mul<Output = T>> Mul for &Vector<T> {
+impl<T: Copy + Mul<Output = T>> Mul for &Vector<T> {
     type Output = Vector<T>;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -45,7 +50,7 @@ impl<T: Copy+Mul<Output = T>> Mul for &Vector<T> {
     }
 }
 
-impl<T: Copy+Div<Output = T>> Div<T> for &Vector<T> {
+impl<T: Copy + Div<Output = T>> Div<T> for &Vector<T> {
     type Output = Vector<T>;
 
     fn div(self, rhs: T) -> Self::Output {
@@ -55,7 +60,7 @@ impl<T: Copy+Div<Output = T>> Div<T> for &Vector<T> {
     }
 }
 
-impl<T: Copy+Div<Output = T>> Div for &Vector<T> {
+impl<T: Copy + Div<Output = T>> Div for &Vector<T> {
     type Output = Vector<T>;
 
     fn div(self, rhs: Self) -> Self::Output {
@@ -70,7 +75,7 @@ impl<T: Copy+Div<Output = T>> Div for &Vector<T> {
     }
 }
 
-impl<T: Copy+Add<Output = T>> Add for &Vector<T> {
+impl<T: Copy + Add<Output = T>> Add for &Vector<T> {
     type Output = Vector<T>;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -85,7 +90,7 @@ impl<T: Copy+Add<Output = T>> Add for &Vector<T> {
     }
 }
 
-impl<T: Copy+Sub<Output = T>> Sub for &Vector<T> {
+impl<T: Copy + Sub<Output = T>> Sub for &Vector<T> {
     type Output = Vector<T>;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -132,7 +137,7 @@ impl<T> Index<usize> for Vector<T> {
     }
 }
 
-impl<T: Copy+Default> Vector<T> {
+impl<T: Copy + Default> Vector<T> {
     pub fn new(size: usize) -> Self {
         Vector {
             data: vec![Default::default(); size],
@@ -140,13 +145,13 @@ impl<T: Copy+Default> Vector<T> {
     }
 }
 
-impl<T: Copy+Sum> Vector<T> {
+impl<T: Copy + Sum> Vector<T> {
     pub fn sum(&self) -> T {
         self.clone().data.into_iter().sum()
     }
 }
 
-impl<T: Copy+Gcd>  Vector<T> {
+impl<T: Copy + Gcd> Vector<T> {
     pub fn gcd(&self) -> T {
         self.data
             .clone()
@@ -158,11 +163,13 @@ impl<T: Copy+Gcd>  Vector<T> {
 
 impl<T: Clone> Clone for Vector<T> {
     fn clone(&self) -> Self {
-        Vector { data: self.data.clone() }       
+        Vector {
+            data: self.data.clone(),
+        }
     }
 }
 
-impl<T: Clone+Copy> Vector<T> {
+impl<T: Clone + Copy> Vector<T> {
     pub fn set_at(&self, index: usize, value: T) -> Self {
         let mut r = self.clone();
         r.data[index] = value;
@@ -235,7 +242,7 @@ mod test {
     #[test]
     fn test_mul_i() {
         let v = Vector::from(vec![1, 2, 3]);
-        let v2 = &v*2;
+        let v2 = &v * 2;
         let v3 = Vector::from(vec![2, 4, 6]);
         assert_eq!(v2, v3);
     }

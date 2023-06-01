@@ -1,7 +1,6 @@
 //! The definition of the NNumber
 
-use super::{Vector, set::Set};
-
+use super::{set::Set, Vector};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum NNumber {
@@ -12,15 +11,15 @@ pub enum NNumber {
 impl std::fmt::Display for NNumber {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            NNumber::N => write!(f,"N"),
-            NNumber::Integer(n) => write!(f,"{}",n),
+            NNumber::N => write!(f, "N"),
+            NNumber::Integer(n) => write!(f, "{}", n),
         }
     }
 }
 
 impl From<isize> for NNumber {
     fn from(i: isize) -> Self {
-        NNumber::Integer(i as usize)  
+        NNumber::Integer(i as usize)
     }
 }
 
@@ -45,7 +44,7 @@ impl Vector<NNumber> {
         Vector::new_from_vec(v)
     }
 
-    pub fn include(&self, other: &Vector<NNumber> ) -> bool {
+    pub fn include(&self, other: &Vector<NNumber>) -> bool {
         if self.len() != other.len() {
             panic!("Cannot check over different size vectors");
         }
@@ -76,7 +75,6 @@ impl Vector<NNumber> {
         Some(Vector::new_from_vec(data))
     }
 
-
     // pub fn restrict_over(&self, bound: &Vector<NNumber>) -> Option<Self> {
     //     if self.len() != bound.len() {
     //         panic!("Cannot check over different size vectors");
@@ -94,20 +92,16 @@ impl Vector<NNumber> {
 
     //     Some(Vector::new_from_vec(r))
     // }
-
-    
 }
 
 impl NNumber {
     pub fn include(&self, other: &Self) -> bool {
         match self {
             NNumber::N => true,
-            NNumber::Integer(s) => {
-                match other {
-                    NNumber::N => false,
-                    NNumber::Integer(o) => s == o,
-                }
-            }
+            NNumber::Integer(s) => match other {
+                NNumber::N => false,
+                NNumber::Integer(o) => s == o,
+            },
         }
     }
 
@@ -120,19 +114,15 @@ impl NNumber {
 
     pub fn intersect(&self, other: &Self) -> Option<NNumber> {
         match self {
-            NNumber::N => {
-                match other {
-                    NNumber::N => Some(NNumber::N),
-                    NNumber::Integer(_) => Some(*other),
-                }
+            NNumber::N => match other {
+                NNumber::N => Some(NNumber::N),
+                NNumber::Integer(_) => Some(*other),
             },
-            NNumber::Integer(s) => {
-                match other {
-                    NNumber::N => Some(*self),
-                    NNumber::Integer(o) if o == s => Some(*self),
-                    _ => None,
-                }
-            }
+            NNumber::Integer(s) => match other {
+                NNumber::N => Some(*self),
+                NNumber::Integer(o) if o == s => Some(*self),
+                _ => None,
+            },
         }
     }
 
@@ -148,5 +138,4 @@ impl NNumber {
     //         }
     //     }
     // }
-
 }

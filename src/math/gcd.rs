@@ -1,11 +1,10 @@
 // Gcd module
 
 pub trait Gcd {
-    fn gcd(&self,other:Self) -> Self;
+    fn gcd(&self, other: Self) -> Self;
 }
 
 impl Gcd for usize {
-
     fn gcd(&self, other: usize) -> usize {
         if self == &other {
             return *self;
@@ -30,13 +29,10 @@ impl Gcd for usize {
         }
         return self.gcd(other.abs_diff(*self) >> 1);
     }
-
 }
 
 impl Gcd for isize {
-
-    fn gcd(&self,other:Self) -> Self {
+    fn gcd(&self, other: Self) -> Self {
         (*self as usize).gcd(other as usize) as isize
     }
-
 }

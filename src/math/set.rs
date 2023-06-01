@@ -1,12 +1,11 @@
 use std::{collections::HashSet, vec};
 
-use super::{Vector, NNumber};
+use super::{NNumber, Vector};
 
 #[derive(Debug)]
 pub struct Set {
-    data: Vec<Vector<NNumber>>
+    data: Vec<Vector<NNumber>>,
 }
-
 
 impl Set {
     pub fn new_0_into_n_set(input_set: HashSet<Vector<isize>>) -> Self {
@@ -17,13 +16,13 @@ impl Set {
             data.push(Vector::new_0_into_n(vect));
         }
         let s = Self { data };
-        println!("{}",&s);
+        println!("{}", &s);
         s
     }
 
     pub fn new_from_vec(data: Vec<Vector<NNumber>>) -> Self {
         let s = Self { data };
-        println!("{}",s);
+        println!("{}", s);
         s
     }
 
@@ -46,13 +45,11 @@ impl Set {
     }
 
     pub fn include(&self, other: &Vector<NNumber>) -> bool {
-        self.data.iter()
-            .any(|v| v.include(other))
+        self.data.iter().any(|v| v.include(other))
     }
 
     pub fn include_set(&self, other: &Self) -> bool {
-        other.data.iter()
-            .all(|v| self.include(v))
+        other.data.iter().all(|v| self.include(v))
     }
 
     pub fn insert(&mut self, in_vect: Vector<NNumber>) {
@@ -62,22 +59,24 @@ impl Set {
     }
 
     fn intersect_vec(&self, vec: &Vector<NNumber>) -> Set {
-        Self { data: self.data.iter()
-            .map(|iv| iv.intersect(vec))
-            .filter(|op| op.is_some())
-            .map(|t_op| t_op.unwrap())
-            .collect()
+        Self {
+            data: self
+                .data
+                .iter()
+                .map(|iv| iv.intersect(vec))
+                .filter(|op| op.is_some())
+                .map(|t_op| t_op.unwrap())
+                .collect(),
         }
     }
 
     pub fn intersect(&self, other: &Self) -> Self {
-        
         let b_s = if self.data.len() >= other.data.len() {
-            (self,other)
+            (self, other)
         } else {
-            (other,self)
+            (other, self)
         };
-        
+
         let mut r_set = Self::new();
 
         for u in 0..b_s.1.data.len() {
@@ -91,11 +90,10 @@ impl Set {
     }
 
     pub fn union(&self, other: &Self) -> Self {
-        
-        let b_s =  if self.data.len() >= other.data.len() {
-            (self,other)
+        let b_s = if self.data.len() >= other.data.len() {
+            (self, other)
         } else {
-            (other,self)
+            (other, self)
         };
 
         let mut n_data = b_s.0.data.clone();
@@ -108,7 +106,6 @@ impl Set {
         }
         Self { data: n_data }
     }
-
 }
 
 impl PartialEq for Set {
@@ -119,14 +116,13 @@ impl PartialEq for Set {
 
 impl std::fmt::Display for Set {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"{{")?;
+        write!(f, "{{")?;
         for u in 0..self.data.len() {
-            write!(f,"{}",self.data[u])?;
+            write!(f, "{}", self.data[u])?;
         }
-        write!(f,"}}")
+        write!(f, "}}")
     }
 }
-
 
 #[cfg(test)]
 mod test {
@@ -135,63 +131,70 @@ mod test {
 
     #[test]
     fn test_eq_self() {
-
-        let a = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::N,NNumber::Integer(2)]),
-        ]);
-        assert_eq!(a,a);
+        let a = Set::new_from_vec(vec![Vector::new_from_vec(vec![
+            NNumber::N,
+            NNumber::Integer(2),
+        ])]);
+        assert_eq!(a, a);
     }
 
     #[test]
     fn test_include_set() {
-        let a = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::N,NNumber::Integer(2)]),
-        ]);
-        let b = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(2)]),
-        ]);
+        let a = Set::new_from_vec(vec![Vector::new_from_vec(vec![
+            NNumber::N,
+            NNumber::Integer(2),
+        ])]);
+        let b = Set::new_from_vec(vec![Vector::new_from_vec(vec![
+            NNumber::Integer(2),
+            NNumber::Integer(2),
+        ])]);
 
         assert!(a.include_set(&b));
     }
 
     #[test]
     fn test_intersect_mini() {
-        let a = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::N,NNumber::Integer(2)]),
-        ]);
-        let b = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(2)]),
-        ]);
+        let a = Set::new_from_vec(vec![Vector::new_from_vec(vec![
+            NNumber::N,
+            NNumber::Integer(2),
+        ])]);
+        let b = Set::new_from_vec(vec![Vector::new_from_vec(vec![
+            NNumber::Integer(2),
+            NNumber::Integer(2),
+        ])]);
 
-        assert_eq!(&a.intersect(&b),&b);
+        assert_eq!(&a.intersect(&b), &b);
     }
 
     #[test]
     fn test_union_included() {
-        let a = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::N,NNumber::Integer(2)]),
-        ]);
-        let b = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(2)]),
-        ]);
+        let a = Set::new_from_vec(vec![Vector::new_from_vec(vec![
+            NNumber::N,
+            NNumber::Integer(2),
+        ])]);
+        let b = Set::new_from_vec(vec![Vector::new_from_vec(vec![
+            NNumber::Integer(2),
+            NNumber::Integer(2),
+        ])]);
 
-        assert_eq!(&a.union(&b),&a);
+        assert_eq!(&a.union(&b), &a);
     }
 
     #[test]
     fn test_union() {
-        let a = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::N,NNumber::Integer(2)]),
-        ]);
+        let a = Set::new_from_vec(vec![Vector::new_from_vec(vec![
+            NNumber::N,
+            NNumber::Integer(2),
+        ])]);
         let b = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(2)]),
-            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(4)]),
+            Vector::new_from_vec(vec![NNumber::Integer(2), NNumber::Integer(2)]),
+            Vector::new_from_vec(vec![NNumber::Integer(2), NNumber::Integer(4)]),
         ]);
         let c = Set::new_from_vec(vec![
-            Vector::new_from_vec(vec![NNumber::N,NNumber::Integer(2)]),
-            Vector::new_from_vec(vec![NNumber::Integer(2),NNumber::Integer(4)]),
+            Vector::new_from_vec(vec![NNumber::N, NNumber::Integer(2)]),
+            Vector::new_from_vec(vec![NNumber::Integer(2), NNumber::Integer(4)]),
         ]);
 
-        assert_eq!(&a.union(&b),&c);
+        assert_eq!(&a.union(&b), &c);
     }
 }

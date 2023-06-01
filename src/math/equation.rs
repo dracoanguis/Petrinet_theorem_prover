@@ -1,6 +1,11 @@
 //! Equation trait definition, with default resolution
 
-use std::{collections::HashSet, fmt::Debug, ops::{Mul, Div}, iter::Sum};
+use std::{
+    collections::HashSet,
+    fmt::Debug,
+    iter::Sum,
+    ops::{Div, Mul},
+};
 
 use crate::math::{Gcd, Vector};
 
@@ -67,7 +72,6 @@ impl Equation<isize> for PartialEquation {
         // println!("self:{:?} sols:{:?}",self ,sols);
         sols
     }
-
 }
 
 impl PartialEquation {
@@ -79,7 +83,7 @@ impl PartialEquation {
     }
 }
 
-pub trait Equation<T: Gcd+Copy+Mul<Output = T>+Sum+PartialEq> {
+pub trait Equation<T: Gcd + Copy + Mul<Output = T> + Sum + PartialEq> {
     fn get_weights(&self) -> Vector<T>;
     fn get_result(&self) -> T;
 
@@ -92,5 +96,4 @@ pub trait Equation<T: Gcd+Copy+Mul<Output = T>+Sum+PartialEq> {
     }
 
     fn solve(&self) -> HashSet<Vector<T>>;
-
 }

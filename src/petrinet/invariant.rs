@@ -1,9 +1,12 @@
 //! Invariant module
 
-use std::{ops::Add, hash::{Hash, self}};
+use std::{
+    hash::{self, Hash},
+    ops::Add,
+};
 
 use super::{arc::*, petrinet::Marking};
-use crate::math::{Vector, Equation, equation::PartialEquation, set::Set, NNumber};
+use crate::math::{equation::PartialEquation, set::Set, Equation, NNumber, Vector};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Invariant<'a> {
@@ -108,7 +111,7 @@ impl<'a> InstanciedInvariant<'a> {
                 .collect(),
         );
 
-        println!("{}",&values);
+        println!("{}", &values);
 
         let result = (&equation.weights * &values).sum();
 

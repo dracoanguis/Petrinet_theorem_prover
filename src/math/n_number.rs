@@ -131,7 +131,7 @@ impl NNumber {
     //         NNumber::N => Some(NNumber::N),
     //         NNumber::Integer(s) => {
 
-    //         } 
+    //         }
     //     }
     // }
 

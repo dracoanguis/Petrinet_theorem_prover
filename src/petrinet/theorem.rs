@@ -41,7 +41,9 @@ impl<'a> Equation<isize> for EquationTheom<'a> {
             EquationTheomKind::Equality => {
                 PartialEquation::new(&self.weights, self.result).verify(solution_vector)
             }
-            EquationTheomKind::InequalityStrict => (&self.weights * solution_vector).sum() < self.result,
+            EquationTheomKind::InequalityStrict => {
+                (&self.weights * solution_vector).sum() < self.result
+            }
             EquationTheomKind::Inequality => (&self.weights * solution_vector).sum() <= self.result,
         }
     }

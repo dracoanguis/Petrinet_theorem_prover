@@ -16,4 +16,4 @@ pub use n_number::NNumber;
 
 pub mod set;
 
-mod theorem;
+pub mod theorem;

@@ -60,3 +60,44 @@ impl<T: Theorem> Theorem for NotTheorem<T> {
         !self.a.check()
     }
 }
+
+
+impl Theorem for bool {
+    fn check(&self) -> bool {
+        *self
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    #[test]
+    fn test_base(){
+        assert!(true.check());
+        assert!(!false.check());
+    }
+
+    #[test]
+    fn test_or(){
+        assert!(true.or(false).check());
+    }
+
+    #[test]
+    fn test_and() {
+        assert!(true.and(true).check());
+    }
+
+    #[test]
+    fn test_not() {
+        assert!(false.not().check());
+    }
+
+    #[test]
+    fn test_expr_1() {
+        assert!(false.and(true).not().check());
+    }
+
+}

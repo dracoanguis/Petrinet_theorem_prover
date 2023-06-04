@@ -11,6 +11,20 @@ use super::Gcd;
 
 
 /// A Vector in the mathematical sens, it implements a few element wise operations.
+/// 
+/// Mathematcally speaking it is a 1xN vector, and every operations implementations on it are element wise. 
+/// 
+/// # Examples
+/// ```rust
+/// use petrinet_theorem_prover::math::Vector;
+///
+/// let v = Vector::new_from_vec(vec![1,2,3]);
+/// let u = Vector::new_from_vec(vec![3,2,1]);
+/// 
+/// assert_eq!(&v*&u,Vector::new_from_vec(vec![3,4,3]));
+/// assert_eq!(&v+&u, Vector::new_from_vec(vec![4,4,4]));
+///
+/// ```
 #[derive(Debug, Eq)]
 pub struct Vector<T> {
     data: Vec<T>,

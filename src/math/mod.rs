@@ -1,8 +1,9 @@
+//! This module define some mathematical methods used in this librairy.
+
 pub mod matrix;
 pub use matrix::Matrix;
 
 pub mod vector;
-// pub use vector::gcd;
 pub use vector::Vector;
 
 pub mod gcd;
@@ -17,5 +18,3 @@ pub use n_number::NNumber;
 pub mod set;
 
 pub mod theorem;
-
-pub mod new_set;

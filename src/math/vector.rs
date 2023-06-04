@@ -1,4 +1,4 @@
-//! Vector module
+//! Defines a new Vector struct that is closer to the mathematical definition and implements element wise operations.
 
 use std::{
     fmt::Display,
@@ -9,6 +9,8 @@ use std::{
 
 use super::Gcd;
 
+
+/// A Vector in the mathematical sens, it implements a few element wise operations.
 #[derive(Debug, Eq)]
 pub struct Vector<T> {
     data: Vec<T>,
@@ -138,6 +140,7 @@ impl<T> Index<usize> for Vector<T> {
 }
 
 impl<T: Copy + Default> Vector<T> {
+    /// Creates a new vector of lenght size filled with default values of the corresponding type.
     pub fn new(size: usize) -> Self {
         Vector {
             data: vec![Default::default(); size],
@@ -146,12 +149,15 @@ impl<T: Copy + Default> Vector<T> {
 }
 
 impl<T: Copy + Sum> Vector<T> {
+    /// Add each values of the Vector and returns the total computed sum.
     pub fn sum(&self) -> T {
         self.clone().data.into_iter().sum()
     }
 }
 
 impl<T: Copy + Gcd> Vector<T> {
+    /// Implements the gcd over a vector using a reduce operation.
+    /// This function works over the math::gcd::Gcd trait.
     pub fn gcd(&self) -> T {
         self.data
             .clone()
@@ -170,6 +176,7 @@ impl<T: Clone> Clone for Vector<T> {
 }
 
 impl<T: Clone + Copy> Vector<T> {
+    /// This function returns a new Vector that is a copy of the original with value at index replaced.
     pub fn set_at(&self, index: usize, value: T) -> Self {
         let mut r = self.clone();
         r.data[index] = value;
@@ -186,10 +193,12 @@ impl<T: Clone + Copy> Vector<T> {
 }
 
 impl<T> Vector<T> {
+    /// This function returns the lenght of the Vector.
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
+    /// This function creates a new Vector from an std::Vec over the same type T.
     pub fn new_from_vec(data: Vec<T>) -> Self {
         Vector { data }
     }

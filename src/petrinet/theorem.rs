@@ -5,7 +5,7 @@ use std::collections::HashSet;
 use crate::{
     math::Vector,
     math::{
-        equation::{Equation, PartialEquation},
+        equation::{Equation, BasicEquation},
         set::Set,
     },
 };
@@ -39,7 +39,7 @@ impl<'a> Equation<isize> for EquationTheom<'a> {
     fn verify(&self, solution_vector: &Vector<isize>) -> bool {
         match self.kind {
             EquationTheomKind::Equality => {
-                PartialEquation::new(&self.weights, self.result).verify(solution_vector)
+                BasicEquation::new(&self.weights, self.result).verify(solution_vector)
             }
             EquationTheomKind::InequalityStrict => {
                 (&self.weights * solution_vector).sum() < self.result

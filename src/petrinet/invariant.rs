@@ -6,7 +6,7 @@ use std::{
 };
 
 use super::{arc::*, petrinet::Marking};
-use crate::math::{equation::PartialEquation, set::Set, Equation, NNumber, Vector};
+use crate::math::{equation::BasicEquation, set::Set, Equation, NNumber, Vector};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Invariant<'a> {
@@ -160,7 +160,7 @@ impl<'a> Equation<isize> for InstanciedInvariant<'a> {
     }
 
     fn solve(&self) -> std::collections::HashSet<Vector<isize>> {
-        PartialEquation::new(&self.equation.weights, self.result).solve()
+        BasicEquation::new(&self.equation.weights, self.result).solve()
     }
 }
 

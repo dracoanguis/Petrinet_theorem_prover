@@ -4,18 +4,41 @@ use std::{
     collections::HashSet,
     fmt::Debug,
     iter::Sum,
-    ops::{Div, Mul},
+    ops::Mul,
 };
 
 use crate::math::{Gcd, Vector};
 
+pub trait Equation<T: Gcd + Copy + Mul<Output = T> + Sum + PartialEq> {
+    fn get_weights(&self) -> Vector<T>;
+    fn get_result(&self) -> T;
+
+    fn get_simplify_factor(&self) -> T {
+        self.get_weights().gcd().gcd(self.get_result())
+    }
+
+    fn verify(&self, solution_vector: &Vector<T>) -> bool {
+        (&self.get_weights() * solution_vector).sum() == self.get_result()
+    }
+
+    fn solve(&self) -> HashSet<Vector<T>>;
+
+    fn combine_or<U>(&self, other: U) -> OrEquation<Self, U>
+    where
+        Self: Sized,
+        U: Equation<T>
+    {
+        OrEquation::new(self, other)
+    }
+}
+
 #[derive(Debug)]
-pub struct PartialEquation {
+pub struct BasicEquation {
     weights: Vector<isize>,
     result: isize,
 }
 
-impl Equation<isize> for PartialEquation {
+impl Equation<isize> for BasicEquation {
     fn get_weights(&self) -> Vector<isize> {
         self.weights.clone()
     }
@@ -45,7 +68,7 @@ impl Equation<isize> for PartialEquation {
             let w = w_init[i];
             if w != Default::default() {
                 for s in (0..=(r_init / w)).rev() {
-                    let sub_eq = PartialEquation {
+                    let sub_eq = BasicEquation {
                         weights: w_init.set_at(i, 0),
                         result: r_init - s * w,
                     };
@@ -57,7 +80,7 @@ impl Equation<isize> for PartialEquation {
                         sols.insert(possible_sol);
                     }
 
-                    let mut sub_sols = PartialEquation {
+                    let mut sub_sols = BasicEquation {
                         weights: w_init.set_at(i, 0),
                         result: r_init - s * w,
                     }
@@ -74,26 +97,27 @@ impl Equation<isize> for PartialEquation {
     }
 }
 
-impl PartialEquation {
+impl BasicEquation {
     pub fn new(weights: &Vector<isize>, result: isize) -> Self {
-        PartialEquation {
+        BasicEquation {
             weights: weights.clone(),
             result,
         }
     }
 }
 
-pub trait Equation<T: Gcd + Copy + Mul<Output = T> + Sum + PartialEq> {
-    fn get_weights(&self) -> Vector<T>;
-    fn get_result(&self) -> T;
+struct OrEquation<T, U> {
+    first: T,
+    second: U,
+}
 
-    fn get_simplify_factor(&self) -> T {
-        self.get_weights().gcd().gcd(self.get_result())
+impl<T, U> OrEquation<T, U> 
+where 
+    // V: Gcd + Copy + Mul<Output = V> + Sum + PartialEq,
+    T: Equation,
+    U: Equation,
+{
+    pub fn new(first: T, second: U) -> Self {
+        OrEquation { first, second }
     }
-
-    fn verify(&self, solution_vector: &Vector<T>) -> bool {
-        (&self.get_weights() * solution_vector).sum() == self.get_result()
-    }
-
-    fn solve(&self) -> HashSet<Vector<T>>;
 }

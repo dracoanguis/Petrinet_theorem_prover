@@ -1,19 +1,54 @@
-//! Base for petrinets
+//! Base types for petrinets construction.
 
 use std::hash::Hash;
 
+/// A Place of a Petrinet
+/// 
+/// It constains a name and a comment string
 #[derive(Debug)]
 pub struct Place {
+    /// The identifier of the place
     pub name: String,
+    /// A human readable comment about it, it has no influence over anything
     pub comment: String,
 }
 
+/// A Transition of a Petrinet
+/// 
+/// It constains a name and a comment string
 #[derive(Debug)]
 pub struct Transition {
+    /// The identifier of the transition
     pub name: String,
+    /// A human readable comment about it, it has no influence over anything
     pub comment: String,
 }
 
+/// An Arc of Petrinet
+/// 
+/// It is defined between a Place and a Transition or the inverse
+/// 
+/// # Examples
+/// ``` rust
+/// 
+/// let places = Place::new_default_vec(4);
+/// let transitions = Transition::new_default_vec(5);
+/// let pre_arcs = vec![
+///     places[0].link_cost_1(&transitions[0]),
+///     places[1].link_cost_1(&transitions[1]),
+///     places[2].link_cost_1(&transitions[2]),
+///     places[2].link_cost_1(&transitions[3]),
+///     places[3].link_cost_1(&transitions[4]),
+/// ];
+/// let post_arcs = vec![
+///     transitions[0].link_gain_1(&places[1]),
+///     transitions[1].link_gain_1(&places[2]),
+///     transitions[2].link_gain_1(&places[0]),
+///     transitions[3].link_gain_1(&places[3]),
+///     transitions[4].link_gain_1(&places[2]),
+/// ];
+/// 
+/// ```
 #[derive(Debug)]
 pub struct Arc<'a> {
     place: &'a Place,
@@ -22,15 +57,18 @@ pub struct Arc<'a> {
 }
 
 impl Place {
+    /// Creates a new place from a name and a comment
     pub fn new(name: String, comment: String) -> Self {
         Place { name, comment }
     }
 
+    /// Creates a new place from a name only
     pub fn new_without_comment(name: String) -> Self {
         let comment = String::new();
         Place { name, comment }
     }
 
+    /// Creates a vector of size number of place wich a names P_0.. P_(size-1)
     pub fn new_default_vec(size: usize) -> Vec<Place> {
         let mut v = Vec::new();
         v.reserve(size);
@@ -42,6 +80,7 @@ impl Place {
         v
     }
 
+    /// Creates an (Pre-)Arc from the current place and the given transition with the precised cost
     pub fn link<'a>(&'a self, transition: &'a Transition, cost: isize) -> Arc<'a> {
         Arc {
             place: self,
@@ -50,6 +89,7 @@ impl Place {
         }
     }
 
+    /// Creates an (Pre-)Arc from the current place and the given transition with a cost of 1
     pub fn link_cost_1<'a>(&'a self, transition: &'a Transition) -> Arc<'a> {
         Arc {
             place: self,
@@ -94,23 +134,20 @@ impl Hash for Place {
     }
 }
 
-#[macro_export]
-macro_rules! place {
-    ($s_name:literal,$s_comment:literal) => {
-        Place::new($s_name.to_string(), $s_comment.to_string())
-    };
-}
 
 impl Transition {
+    /// Creates a new transition from a name and a comment
     pub fn new(name: String, comment: String) -> Self {
         Transition { name, comment }
     }
 
+    /// Creates a new transition from a name only
     pub fn new_without_comment(name: String) -> Self {
         let comment = String::new();
         Transition { name, comment }
     }
 
+    /// Creates a vector of size number of transitions wich a names T_0..T_(size-1)
     pub fn new_default_vec(size: usize) -> Vec<Transition> {
         let mut v = Vec::new();
         v.reserve(size);
@@ -125,6 +162,7 @@ impl Transition {
         v
     }
 
+    /// Creates an (Post-)Arc from the current transition and the given place with the precised gain
     pub fn link<'a>(&'a self, place: &'a Place, gain: isize) -> Arc<'a> {
         Arc {
             place,
@@ -133,6 +171,7 @@ impl Transition {
         }
     }
 
+    /// Creates an (Post-)Arc from the current transition and the given place with a gain of 1
     pub fn link_gain_1<'a>(&'a self, place: &'a Place) -> Arc<'a> {
         Arc {
             place,
@@ -163,14 +202,8 @@ impl Hash for Transition {
     }
 }
 
-#[macro_export]
-macro_rules! trans {
-    ($s_name:literal,$s_comment:literal) => {
-        Transition::new($s_name.to_string(), $s_comment.to_string())
-    };
-}
-
 impl<'a> Arc<'a> {
+    /// Creates a new Arc from the given data
     pub fn new(place: &'a Place, transition: &'a Transition, cost_or_gain: isize) -> Self {
         Arc {
             place,
@@ -179,6 +212,7 @@ impl<'a> Arc<'a> {
         }
     }
 
+    /// Creates a new Arc with a fixed weight of 1 from the given data
     pub fn new_cost_1(place: &'a Place, transition: &'a Transition) -> Self {
         Arc {
             place,
@@ -187,6 +221,7 @@ impl<'a> Arc<'a> {
         }
     }
 
+    /// Check if the current arc is between the given data
     pub fn is_from(&self, place: &Place, transition: &Transition) -> bool {
         self.place == place && self.transition == transition
     }

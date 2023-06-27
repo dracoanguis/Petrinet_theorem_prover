@@ -1,10 +1,15 @@
 //! The definition of the NNumber
 
-use super::{set::Set, Vector};
+use super::{Vector};
 
+/// The natural numbers augmented with the N numbers
+/// 
+/// The N number reprensents anything, it used to precise a free variable in an equation
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum NNumber {
+    /// The N number
     N,
+    /// The natural numbers
     Integer(usize),
 }
 
@@ -35,6 +40,7 @@ impl From<Vector<isize>> for Vector<NNumber> {
 }
 
 impl Vector<NNumber> {
+    /// Convert a vector of integers to a vector of NNumbers where every 0 is replaced with the N number
     pub fn new_0_into_n(vect: Vector<isize>) -> Self {
         let mut v = Vec::new();
         v.reserve(vect.len());
@@ -44,6 +50,7 @@ impl Vector<NNumber> {
         Vector::new_from_vec(v)
     }
 
+    /// Check if the othe vector is included in the current vector
     pub fn include(&self, other: &Vector<NNumber>) -> bool {
         if self.len() != other.len() {
             panic!("Cannot check over different size vectors");
@@ -57,6 +64,7 @@ impl Vector<NNumber> {
         true
     }
 
+    /// Returns the intersection between the current vector and the other vector, will return None if the intersection is empty
     pub fn intersect(&self, other: &Vector<NNumber>) -> Option<Vector<NNumber>> {
         if self.len() != other.len() {
             panic!("Cannot check over different size vectors");
@@ -95,6 +103,7 @@ impl Vector<NNumber> {
 }
 
 impl NNumber {
+    /// Check if other is included in the current number
     pub fn include(&self, other: &Self) -> bool {
         match self {
             NNumber::N => true,
@@ -105,6 +114,7 @@ impl NNumber {
         }
     }
 
+    /// Creates a NNumber from an integer where 0 is converted to N
     pub fn new_0_into_n(i: isize) -> Self {
         match i {
             0 => NNumber::N,
@@ -112,6 +122,7 @@ impl NNumber {
         }
     }
 
+    /// Intersect the two numbers and return None if is empty
     pub fn intersect(&self, other: &Self) -> Option<NNumber> {
         match self {
             NNumber::N => match other {

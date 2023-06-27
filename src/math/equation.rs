@@ -9,29 +9,38 @@ use std::{
 
 use crate::math::{Gcd, Vector};
 
+/// The equation trait
 pub trait Equation<T: Gcd + Copy + Mul<Output = T> + Sum + PartialEq> {
+    /// Returns the weights of the equation
     fn get_weights(&self) -> Vector<T>;
+
+    /// Returns the expected result of the equation
     fn get_result(&self) -> T;
 
+    /// Get the simplification factor, if the two sides are divisible by an integer
     fn get_simplify_factor(&self) -> T {
         self.get_weights().gcd().gcd(self.get_result())
     }
 
+    /// Verify if the given vector is a valid solution to the equation
     fn verify(&self, solution_vector: &Vector<T>) -> bool {
         (&self.get_weights() * solution_vector).sum() == self.get_result()
     }
 
+    /// Returns a HashSet of every valid solution
     fn solve(&self) -> HashSet<Vector<T>>;
 
-    fn combine_or<U>(&self, other: U) -> OrEquation<Self, U>
-    where
-        Self: Sized,
-        U: Equation<T>
-    {
-        OrEquation::new(self, other)
-    }
+    // fn combine_or<U>(&self, other: U) -> OrEquation<Self, U>
+    // where
+    //     Self: Sized,
+    //     U: Equation<T>
+    // {
+    //     OrEquation::new(self, other)
+    // }
 }
 
+
+/// The most basiqe structure that implements the equation trait
 #[derive(Debug)]
 pub struct BasicEquation {
     weights: Vector<isize>,
@@ -98,6 +107,7 @@ impl Equation<isize> for BasicEquation {
 }
 
 impl BasicEquation {
+    /// Creates a new basic equation from the given data
     pub fn new(weights: &Vector<isize>, result: isize) -> Self {
         BasicEquation {
             weights: weights.clone(),
@@ -106,18 +116,18 @@ impl BasicEquation {
     }
 }
 
-struct OrEquation<T, U> {
-    first: T,
-    second: U,
-}
+// struct OrEquation<T, U> {
+//     first: T,
+//     second: U,
+// }
 
-impl<T, U> OrEquation<T, U> 
-where 
-    // V: Gcd + Copy + Mul<Output = V> + Sum + PartialEq,
-    T: Equation,
-    U: Equation,
-{
-    pub fn new(first: T, second: U) -> Self {
-        OrEquation { first, second }
-    }
-}
+// impl<T, U> OrEquation<T, U> 
+// where 
+//     // V: Gcd + Copy + Mul<Output = V> + Sum + PartialEq,
+//     T: Equation,
+//     U: Equation,
+// {
+//     pub fn new(first: T, second: U) -> Self {
+//         OrEquation { first, second }
+//     }
+// }

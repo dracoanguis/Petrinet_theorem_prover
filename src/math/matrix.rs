@@ -1,22 +1,58 @@
-//! Matrix module
+//! A module defining the mathematical matrix and some operations over it.
 
 use super::vector::Vector;
 use std::ops;
 use super::z_number::ZNumber;
 
+
+/// A matrix of integers with some element wise operations.
+/// 
+/// It only define the add and sub operations element wise. In this librairy it's used to compute the Farkas algorithm result.
+/// 
+/// # Example
+/// 
+/// ```rust
+/// use petrinet_theorem_prover::math::Matrix;
+/// 
+/// let m = Matrix::from(vec![
+///     vec![1,1,1],
+///     vec![2,2,2],
+///     vec![3,3,3],
+/// ]);
+/// let m2 = Matrix::identity(3);
+/// let r1 = Matrix::from(vec![
+///     vec![2,1,1],
+///     vec![2,3,2],
+///     vec![3,3,4],
+/// ]);
+/// 
+/// assert_eq!(&m+&m2,r1);
+/// 
+/// let m3 = Matrix::from(vec![
+///     vec![-1, 0, 1, 0, 0],
+///     vec![1, -1, 0, 0, 0],
+///     vec![0, 1, -1, -1, 1],
+///     vec![0, 0, 0, 1, -1],
+/// ]);
+/// let r2 = Matrix::from(vec![vec![1, 1, 1, 1]]);
+/// 
+/// assert_eq!(m3.farkas(),Some(r2));
+/// ``` 
 #[derive(Debug)]
 pub struct Matrix {
     rows: usize,
     cols: usize,
-    data: Vec<Vector>,
+    data: Vec<Vector<isize>>,
 }
 
 impl Matrix {
+    /// Creates a new Matrix rows x cols filled with 0s.
     pub fn new(rows: usize, cols: usize) -> Self {
         let data = vec![Vector::from(vec![0; cols]); rows];
         Matrix { rows, cols, data }
     }
 
+    /// Returns the identity matrix of the indicated size.
     pub fn identity(size: usize) -> Self {
         let mut data = Vec::new();
 
@@ -28,6 +64,26 @@ impl Matrix {
         Matrix::from(data)
     }
 
+    /// Return an augmented matrix of the first one, and the rhs on the right.
+    /// 
+    /// # Panics
+    /// 
+    /// The function panics if the number of rows on the two matrix doesn't match.
+    /// 
+    /// # Example
+    /// ```rust
+    /// use petrinet_theorem_prover::math::Matrix;
+    /// 
+    /// let i = Matrix::identity(2);
+    /// let i2 = Matrix::identity(2);
+    /// 
+    /// let r = Matrix::from(vec![
+    ///     vec![1,0,1,0],
+    ///     vec![0,1,0,1],
+    /// ]);
+    /// 
+    /// assert_eq!(i.augment(i2),r);
+    /// ```
     pub fn augment(&self, rhs: Matrix) -> Matrix {
         if self.rows != rhs.rows {
             panic!("Trying to augment matrix with wrong size")
@@ -43,19 +99,30 @@ impl Matrix {
         Matrix::from(new_data)
     }
 
-    pub fn index(&self, row: usize, col: usize) -> super::z_number::ZNumber {
+    /// Returns the value of the matrix at the selected row and column.
+    /// 
+    /// # Panics
+    /// 
+    /// This fucntions panics if the selected row of column doesn't exists.
+    /// 
+    pub fn index(&self, row: usize, col: usize) -> isize {
         if self.cols < col || self.rows < row {
             panic!("Index out of boundary")
         }
 
-        self.data[row].index(col)
+        self.data[row][col]
     }
 
-    pub fn is_empty(&self) -> bool {
+    /// Returns the dimension of the matrix in a tuple of the form (r, c) where r is the number of rows and c the number of columns.
+    pub fn dim(&self) -> (usize,usize) {
+        (self.rows,self.cols)
+    }
+
+    fn is_empty(&self) -> bool {
         self.rows == 0 || self.cols == 0
     }
 
-    fn append_row(&mut self, line: Vector) {
+    fn append_row(&mut self, line: Vector<isize>) {
         self.data.push(line);
         self.rows += 1;
     }
@@ -73,6 +140,11 @@ impl Matrix {
         self.cols -= n_col;
     }
 
+
+    /// This function apply the Farkas algorithm to the given matrix and return an optional Matrix, where the lines are the computed invariants, if the solution exists.
+    /// 
+    /// The Farkas algorithm is used in our case to find the minimal set of P-Invariants over a given petrinet, see Petrinet::petrinet::Petrinet.
+    /// The resulting invariants are given in forms of Lines int the result Matrix.
     pub fn farkas(&self) -> Option<Matrix> {
         let n_col = self.cols;
         let n_row = self.rows;
@@ -98,7 +170,7 @@ impl Matrix {
                     }
                     if d_1.signum() != d_2.signum() {
                         let mut new_line =
-                            &(d_2.abs() * &d.data[f_row]) + &(d_1.abs() * &d.data[s_row]);
+                            &(&d.data[f_row] * d_2.abs()) + &(&d.data[s_row] * d_1.abs());
                         new_line = &new_line / new_line.gcd();
                         // println!("{}:{} with {} result {:?}",col,f_row,s_row,new_line);
                         d.append_row(new_line);
@@ -121,7 +193,9 @@ impl Matrix {
         Some(d)
     }
 
-    pub fn get_vectors(&self) -> Vec<Vector> {
+
+    /// This functions returns a vec consisting of each rows of the given matrix, a row being a Vector over isize.
+    pub fn get_vectors(&self) -> Vec<Vector<isize>> {
         self.data.clone()
     }
 }

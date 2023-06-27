@@ -1,17 +1,47 @@
-//! Vector module
+//! Defines a new Vector struct that is closer to the mathematical definition and implements element wise operations.
 
-use std::{hash::Hash, ops};
+use std::{
+    fmt::Display,
+    hash::Hash,
+    iter::Sum,
+    ops::{Add, Div, Index, Mul, Sub},
+};
 
+<<<<<<< HEAD
 use super::z_number::ZNumber;
 
 #[derive(Debug, Eq)]
 pub struct Vector {
     data: Vec<ZNumber>,
+=======
+use super::Gcd;
+
+/// A Vector in the mathematical sens, it implements a few element wise operations.
+///
+/// Mathematcally speaking it is a 1xN vector, and every operations implementations on it are element wise.
+///
+/// # Examples
+/// ```rust
+/// use petrinet_theorem_prover::math::Vector;
+///
+/// let v = Vector::new_from_vec(vec![1,2,3]);
+/// let u = Vector::new_from_vec(vec![3,2,1]);
+///
+/// assert_eq!(&v*&u,Vector::new_from_vec(vec![3,4,3]));
+/// assert_eq!(&v+&u, Vector::new_from_vec(vec![4,4,4]));
+///
+/// ```
+#[derive(Debug, Eq)]
+pub struct Vector<T> {
+    data: Vec<T>,
+>>>>>>> world_without
 }
 
-impl ops::Mul<&Vector> for isize {
-    type Output = Vector;
+// Not usable because of theorical multiple definition, sadly see: https://rust-lang.github.io/rfcs/2451-re-rebalancing-coherence.html#concrete-orphan-rules
+// impl<T: Mul<Output = T>> Mul<&Vector<T>> for T {
+//     type Output = Vector<T>;
 
+<<<<<<< HEAD
     fn mul(self, rhs: &Vector) -> Self::Output {
         Vector {
             data: rhs
@@ -22,11 +52,19 @@ impl ops::Mul<&Vector> for isize {
         }
     }
 }
+=======
+//     fn mul(self, rhs: &Vector<T>) -> Self::Output {
+//         Vector {
+//             data: rhs.data.iter().map(|r| self * r).collect(),
+//         }
+//     }
+// }
+>>>>>>> world_without
 
-impl ops::Mul<isize> for &Vector {
-    type Output = Vector;
+impl<T: Copy + Mul<Output = T>> Mul<T> for &Vector<T> {
+    type Output = Vector<T>;
 
-    fn mul(self, rhs: isize) -> Self::Output {
+    fn mul(self, rhs: T) -> Self::Output {
         Vector {
             data: self
                 .data
@@ -37,8 +75,8 @@ impl ops::Mul<isize> for &Vector {
     }
 }
 
-impl ops::Mul for &Vector {
-    type Output = Vector;
+impl<T: Copy + Mul<Output = T>> Mul for &Vector<T> {
+    type Output = Vector<T>;
 
     fn mul(self, rhs: Self) -> Self::Output {
         Vector {
@@ -46,16 +84,20 @@ impl ops::Mul for &Vector {
                 .data
                 .iter()
                 .zip(rhs.data.iter())
+<<<<<<< HEAD
                 .map(|(l, r)| *l * *r)
+=======
+                .map(|(&l, &r)| l * r)
+>>>>>>> world_without
                 .collect(),
         }
     }
 }
 
-impl ops::Div<isize> for &Vector {
-    type Output = Vector;
+impl<T: Copy + Div<Output = T>> Div<T> for &Vector<T> {
+    type Output = Vector<T>;
 
-    fn div(self, rhs: isize) -> Self::Output {
+    fn div(self, rhs: T) -> Self::Output {
         Vector {
             data: self
                 .data
@@ -66,8 +108,8 @@ impl ops::Div<isize> for &Vector {
     }
 }
 
-impl ops::Div for &Vector {
-    type Output = Vector;
+impl<T: Copy + Div<Output = T>> Div for &Vector<T> {
+    type Output = Vector<T>;
 
     fn div(self, rhs: Self) -> Self::Output {
         Vector {
@@ -81,8 +123,8 @@ impl ops::Div for &Vector {
     }
 }
 
-impl ops::Add for &Vector {
-    type Output = Vector;
+impl<T: Copy + Add<Output = T>> Add for &Vector<T> {
+    type Output = Vector<T>;
 
     fn add(self, rhs: Self) -> Self::Output {
         Vector {
@@ -96,8 +138,8 @@ impl ops::Add for &Vector {
     }
 }
 
-impl ops::Sub for &Vector {
-    type Output = Vector;
+impl<T: Copy + Sub<Output = T>> Sub for &Vector<T> {
+    type Output = Vector<T>;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Vector {
@@ -111,12 +153,13 @@ impl ops::Sub for &Vector {
     }
 }
 
-impl PartialEq for Vector {
+impl<T: PartialEq> PartialEq for Vector<T> {
     fn eq(&self, other: &Self) -> bool {
         self.len() == other.len() && self.data.iter().zip(other.data.iter()).all(|(l, r)| l == r)
     }
 }
 
+<<<<<<< HEAD
 impl From<Vec<isize>> for Vector {
     fn from(vec: Vec<isize>) -> Self {
         Vector {
@@ -154,6 +197,9 @@ impl Clone for Vector {
 }
 
 impl std::fmt::Display for Vector {
+=======
+impl<T: Display> std::fmt::Display for Vector<T> {
+>>>>>>> world_without
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[")?;
         for i in self.data.iter() {
@@ -165,15 +211,25 @@ impl std::fmt::Display for Vector {
     }
 }
 
-impl Hash for Vector {
+impl<T: Hash> Hash for Vector<T> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.data.hash(state);
     }
 }
 
-impl Vector {
+impl<T> Index<usize> for Vector<T> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
+    }
+}
+
+impl<T: Copy + Default> Vector<T> {
+    /// Creates a new vector of lenght size filled with default values of the corresponding type.
     pub fn new(size: usize) -> Self {
         Vector {
+<<<<<<< HEAD
             data: vec![ZNumber::Integer(0); size],
         }
     }
@@ -181,22 +237,46 @@ impl Vector {
     pub fn new_inconsidered(size: usize) -> Self {
         Vector {
             data: vec![ZNumber::NonConsidered; size],
+=======
+            data: vec![Default::default(); size],
+>>>>>>> world_without
         }
     }
+}
 
-    pub fn gcd(&self) -> isize {
+impl<T: Copy + Sum> Vector<T> {
+    /// Add each values of the Vector and returns the total computed sum.
+    pub fn sum(&self) -> T {
+        self.clone().data.into_iter().sum()
+    }
+}
+
+impl<T: Copy + Gcd> Vector<T> {
+    /// Implements the gcd over a vector using a reduce operation.
+    /// This function works over the math::gcd::Gcd trait.
+    pub fn gcd(&self) -> T {
         self.data
             .clone()
             .into_iter()
+<<<<<<< HEAD
             .map(|zn| zn.into())
             .reduce(|a: isize, b| (gcd(a.unsigned_abs(), b.unsigned_abs())) as isize)
+=======
+            .reduce(|a, b| a.gcd(b))
+>>>>>>> world_without
             .unwrap()
     }
+}
 
-    pub fn len(&self) -> usize {
-        self.data.len()
+impl<T: Clone> Clone for Vector<T> {
+    fn clone(&self) -> Self {
+        Vector {
+            data: self.data.clone(),
+        }
     }
+}
 
+<<<<<<< HEAD
     pub fn sum(&self) -> isize {
         self.data
             .iter()
@@ -212,6 +292,14 @@ impl Vector {
         let mut new = self.clone();
         new.data[index] = value;
         return new;
+=======
+impl<T: Clone + Copy> Vector<T> {
+    /// This function returns a new Vector that is a copy of the original with value at index replaced.
+    pub fn set_at(&self, index: usize, value: T) -> Self {
+        let mut r = self.clone();
+        r.data[index] = value;
+        return r;
+>>>>>>> world_without
     }
 
     pub(super) fn rotate_right(&mut self, k: usize) {
@@ -223,29 +311,40 @@ impl Vector {
     }
 }
 
-pub fn gcd(a: usize, b: usize) -> usize {
-    if a == b {
-        return a;
+impl<T> Vector<T> {
+    /// This function returns the lenght of the Vector.
+    pub fn len(&self) -> usize {
+        self.data.len()
     }
-    if a == 0 {
-        return b;
+
+    /// This function creates a new Vector from an std::Vec over the same type T.
+    pub fn new_from_vec(data: Vec<T>) -> Self {
+        Vector { data }
     }
-    if b == 0 {
-        return a;
+}
+
+impl From<Vec<isize>> for Vector<isize> {
+    fn from(vec: Vec<isize>) -> Self {
+        Vector { data: vec }
     }
-    if a % 2 == 0 {
-        if b % 2 == 0 {
-            return gcd(a >> 1, b >> 1) << 1;
-        }
-        return gcd(a >> 1, b);
+}
+
+impl From<&Vec<isize>> for Vector<isize> {
+    fn from(vec: &Vec<isize>) -> Self {
+        Vector { data: vec.clone() }
     }
-    if b % 2 == 0 {
-        return gcd(a, b >> 1);
+}
+
+impl Into<Vec<isize>> for Vector<isize> {
+    fn into(self) -> Vec<isize> {
+        self.data
     }
-    if a > b {
-        return gcd(a.abs_diff(b) >> 1, b);
+}
+
+impl Into<Vec<isize>> for &Vector<isize> {
+    fn into(self) -> Vec<isize> {
+        self.data.clone()
     }
-    return gcd(a, b.abs_diff(a) >> 1);
 }
 
 #[cfg(test)]
@@ -271,7 +370,7 @@ mod test {
     #[test]
     fn test_mul_i() {
         let v = Vector::from(vec![1, 2, 3]);
-        let v2 = 2 * &v;
+        let v2 = &v * 2;
         let v3 = Vector::from(vec![2, 4, 6]);
         assert_eq!(v2, v3);
     }

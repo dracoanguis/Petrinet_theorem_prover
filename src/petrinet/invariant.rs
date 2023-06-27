@@ -1,18 +1,17 @@
 //! Invariant module
 
 use std::{
-    fmt::Display,
     hash::{self, Hash},
     ops::Add,
 };
 
-use super::{arc::*, equation::Equation, petrinet::Marking};
-use crate::math::{gcd, Vector, ZNumber};
+use super::{arc::*, petrinet::Marking};
+use crate::math::{equation::BasicEquation, set::Set, Equation, NNumber, Vector};
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Invariant<'a> {
     places: &'a Vec<Place>,
-    weights: Vector,
+    weights: Vector<isize>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -22,7 +21,7 @@ pub struct InstanciedInvariant<'a> {
 }
 
 impl<'a> Invariant<'a> {
-    pub fn new(places: &'a Vec<Place>, weights: Vector) -> Self {
+    pub fn new(places: &'a Vec<Place>, weights: Vector<isize>) -> Self {
         Invariant { places, weights }
     }
 
@@ -52,8 +51,8 @@ impl<'a> std::fmt::Display for Invariant<'a> {
         let mut first = true;
 
         for i in 0..self.weights.len() {
-            let val = self.weights.index(i);
-            if val == ZNumber::from(0) {
+            let val = self.weights[i];
+            if val == 0 {
                 continue;
             } else {
                 match val {
@@ -112,7 +111,7 @@ impl<'a> InstanciedInvariant<'a> {
                 .collect(),
         );
 
-        println!("{}", &values);
+        // println!("{}", &values);
 
         let result = (&equation.weights * &values).sum();
 
@@ -147,8 +146,8 @@ impl<'a> std::fmt::Display for InstanciedInvariant<'a> {
     }
 }
 
-impl<'a> Equation for InstanciedInvariant<'a> {
-    fn get_weights(&self) -> Vector {
+impl<'a> Equation<isize> for InstanciedInvariant<'a> {
+    fn get_weights(&self) -> Vector<isize> {
         self.equation.weights.clone()
     }
 
@@ -158,6 +157,33 @@ impl<'a> Equation for InstanciedInvariant<'a> {
 
     fn get_simplify_factor(&self) -> isize {
         self.equation.weights.gcd()
+    }
+
+    fn solve(&self) -> std::collections::HashSet<Vector<isize>> {
+        BasicEquation::new(&self.equation.weights, self.result).solve()
+    }
+}
+
+impl<'a> InstanciedInvariant<'a> {
+    pub fn true_solve(&self) -> Set {
+        let sols = self.solve();
+
+        let mut r_vec = Vec::new();
+        r_vec.reserve_exact(sols.len());
+
+        for vect in sols {
+            let mut sr_vec = Vec::new();
+            for u in 0..vect.len() {
+                if self.equation.weights[u] == 0 {
+                    sr_vec.push(NNumber::N);
+                } else {
+                    sr_vec.push(NNumber::Integer(vect[u] as usize));
+                }
+            }
+            r_vec.push(Vector::new_from_vec(sr_vec));
+        }
+
+        Set::new_from_vec(r_vec)
     }
 }
 

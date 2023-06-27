@@ -1,31 +1,34 @@
-//! Theorem definition over an Instancied Petrinet
+//! EquationTheom definition over an Instancied Petrinet
 
 use std::collections::HashSet;
 
-use crate::{math::Vector, petrinet::petrinet::InstanciedPetrinet};
-
-use super::{
-    equation::{Equation, PartialEquation},
-    invariant::InstanciedInvariant,
+use crate::{
+    math::Vector,
+    math::{
+        equation::{Equation, BasicEquation},
+        set::Set,
+    },
 };
 
+use super::petrinet::InstanciedPetrinet;
+
 #[derive(Debug)]
-enum TheoremKind {
+enum EquationTheomKind {
     Equality,         // ==
     Inequality,       // <=
     InequalityStrict, // <
 }
 
 #[derive(Debug)]
-pub struct Theorem<'a> {
+pub struct EquationTheom<'a> {
     over: &'a InstanciedPetrinet<'a>,
-    kind: TheoremKind,
-    weights: Vector,
+    kind: EquationTheomKind,
+    weights: Vector<isize>,
     result: isize,
 }
 
-impl<'a> Equation for Theorem<'a> {
-    fn get_weights(&self) -> Vector {
+impl<'a> Equation<isize> for EquationTheom<'a> {
+    fn get_weights(&self) -> Vector<isize> {
         self.weights.clone()
     }
 
@@ -33,24 +36,26 @@ impl<'a> Equation for Theorem<'a> {
         self.result
     }
 
-    fn verify(&self, solution_vector: &Vector) -> bool {
+    fn verify(&self, solution_vector: &Vector<isize>) -> bool {
         match self.kind {
-            TheoremKind::Equality => {
-                PartialEquation::new(&self.weights, self.result).verify(solution_vector)
+            EquationTheomKind::Equality => {
+                BasicEquation::new(&self.weights, self.result).verify(solution_vector)
             }
-            TheoremKind::InequalityStrict => (&self.weights * solution_vector).sum() < self.result,
-            TheoremKind::Inequality => (&self.weights * solution_vector).sum() <= self.result,
+            EquationTheomKind::InequalityStrict => {
+                (&self.weights * solution_vector).sum() < self.result
+            }
+            EquationTheomKind::Inequality => (&self.weights * solution_vector).sum() <= self.result,
         }
     }
 
-    fn solve(&self) -> HashSet<Vector> {
+    fn solve(&self) -> HashSet<Vector<isize>> {
         // let sol_set = match self.kind {
-        //     TheoremKind::Equality => {
+        //     EquationTheomKind::Equality => {
         //         let set = PartialEquation::new(&self.weights, self.result).solve();
-        //         println!("theorem: sol: {:?}",set);
+        //         println!("EquationTheom: sol: {:?}",set);
         //         set
         //     },
-        //     TheoremKind::Inequality => {
+        //     EquationTheomKind::Inequality => {
         //         let mut set = HashSet::new();
         //         for sub_res in 0..(self.result + 1) {
         //             let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
@@ -58,7 +63,7 @@ impl<'a> Equation for Theorem<'a> {
         //         }
         //         set
         //     }
-        //     TheoremKind::InequalityStrict => {
+        //     EquationTheomKind::InequalityStrict => {
         //         let mut set = HashSet::new();
         //         for sub_res in 0..self.result {
         //             let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
@@ -68,7 +73,7 @@ impl<'a> Equation for Theorem<'a> {
         //     }
         // };
 
-        // println!("theorem:{} sols:{:?}",&self,&sol_set);
+        // println!("EquationTheom:{} sols:{:?}",&self,&sol_set);
 
         if let Some(contraint_set) = self
             .over
@@ -88,14 +93,14 @@ impl<'a> Equation for Theorem<'a> {
     }
 }
 
-impl<'a> Theorem<'a> {
+impl<'a> EquationTheom<'a> {
     fn new(
         over: &'a InstanciedPetrinet,
-        kind: TheoremKind,
-        weights: Vector,
+        kind: EquationTheomKind,
+        weights: Vector<isize>,
         result: isize,
     ) -> Self {
-        Theorem {
+        EquationTheom {
             over,
             kind,
             weights,
@@ -103,40 +108,44 @@ impl<'a> Theorem<'a> {
         }
     }
 
-    pub fn new_eq(over: &'a InstanciedPetrinet, weights: Vector, result: isize) -> Self {
-        Theorem {
+    pub fn new_eq(over: &'a InstanciedPetrinet, weights: Vector<isize>, result: isize) -> Self {
+        EquationTheom {
             over,
-            kind: TheoremKind::Equality,
+            kind: EquationTheomKind::Equality,
             weights,
             result,
         }
     }
 
-    pub fn new_ineq(over: &'a InstanciedPetrinet, weights: Vector, result: isize) -> Self {
-        Theorem {
+    pub fn new_ineq(over: &'a InstanciedPetrinet, weights: Vector<isize>, result: isize) -> Self {
+        EquationTheom {
             over,
-            kind: TheoremKind::Inequality,
+            kind: EquationTheomKind::Inequality,
             weights,
             result,
         }
     }
 
-    pub fn new_strict_ineq(over: &'a InstanciedPetrinet, weights: Vector, result: isize) -> Self {
-        Theorem {
+    pub fn new_strict_ineq(
+        over: &'a InstanciedPetrinet,
+        weights: Vector<isize>,
+        result: isize,
+    ) -> Self {
+        EquationTheom {
             over,
-            kind: TheoremKind::InequalityStrict,
+            kind: EquationTheomKind::InequalityStrict,
             weights,
             result,
         }
     }
 }
 
-impl<'a> std::fmt::Display for Theorem<'a> {
+impl<'a> std::fmt::Display for EquationTheom<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut first = true;
 
         for i in 0..self.weights.len() {
-            let val = self.weights.index(i);
+            let val = self.weights[i];
             if val == 0 {
                 continue;
             } else {
@@ -178,14 +187,55 @@ impl<'a> std::fmt::Display for Theorem<'a> {
         }
 
         match self.kind {
-            TheoremKind::Equality => write!(f, " = ")?,
-            TheoremKind::Inequality => write!(f, " <= ")?,
-            TheoremKind::InequalityStrict => write!(f, " < ")?,
+            EquationTheomKind::Equality => write!(f, " = ")?,
+            EquationTheomKind::Inequality => write!(f, " <= ")?,
+            EquationTheomKind::InequalityStrict => write!(f, " < ")?,
         }
 
         write!(f, "{}", self.result)?;
 
         Ok(())
+    }
+}
+
+impl<'a> EquationTheom<'a> {
+    pub fn get_constraint(&self) -> Set {
+        // let sol_set = match self.kind {
+        //     EquationTheomKind::Equality => {
+        //         let set = PartialEquation::new(&self.weights, self.result).solve();
+        //         println!("EquationTheom: sol: {:?}",set);
+        //         set
+        //     },
+        //     EquationTheomKind::Inequality => {
+        //         let mut set = HashSet::new();
+        //         for sub_res in 0..(self.result + 1) {
+        //             let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
+        //             set.extend(sub_sols.drain());
+        //         }
+        //         set
+        //     }
+        //     EquationTheomKind::InequalityStrict => {
+        //         let mut set = HashSet::new();
+        //         for sub_res in 0..self.result {
+        //             let mut sub_sols = PartialEquation::new(&self.weights, sub_res).solve();
+        //             set.extend(sub_sols.drain());
+        //         }
+        //         set
+        //     }
+        // };
+
+        if let Some(constraint_set) = self
+            .over
+            .i_invariants
+            .clone()
+            .into_iter()
+            .map(|ii| ii.true_solve())
+            .reduce(|acc, cur| acc.intersect(&cur))
+        {
+            return constraint_set;
+        } else {
+            return Set::new();
+        }
     }
 }
 
@@ -224,6 +274,7 @@ mod test {
             post_arcs,
         );
 
+        println!("Invariants: ");
         if let Some(invs) = &petri3.invariants {
             for i in invs.iter() {
                 println!("{}", i);
@@ -236,24 +287,27 @@ mod test {
 
         let i_petri3 = petri3.instanciate(mark);
 
+        println!("Instancied Invariant:");
+
         for ii in i_petri3.i_invariants.iter() {
             println!("{}", ii);
         }
 
-        let the_a = Theorem::new_eq(&i_petri3, Vector::from(vec![0, 0, 0, 1, 0]), 0);
-        let the_b = Theorem::new_eq(&i_petri3, Vector::from(vec![0, 0, 0, 0, 1]), 0);
+        let the_a = EquationTheom::new_eq(&i_petri3, Vector::from(vec![0, 0, 0, 1, 0]), 0);
+        // let the_b = EquationTheom::new_eq(&i_petri3, Vector::from(vec![0,0,0,0,1]), 0);
 
-        let sol_a = the_a.solve();
+        // let sol_a = the_a.solve();
 
-        println!("theorem: {} sol:{:?}", &the_a, &sol_a);
+        // println!("EquationTheom: {} sol:{:?}",&the_a,&sol_a);
 
-        let sol_b = the_b.solve();
+        // let sol_b = the_b.solve();
 
-        println!("theorem: {} sol:{:?}", &the_a, &sol_b);
+        // println!("EquationTheom: {} sol:{:?}",&the_a,&sol_b);
 
-        let sols: HashSet<Vector> = sol_a.union(&sol_b).cloned().collect();
+        // let sols:HashSet<Vector<isize>> = sol_a.union(&sol_b).cloned().collect();
 
-        println!("New sols: {:?}", sols);
-        assert!(sols.is_empty());
+        let sols = the_a.get_constraint();
+        println!("New constraints: {}", sols);
+        assert!(false);
     }
 }

@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use super::arc::*;
 use super::invariant::*;
 
-use crate::math::Matrix;
+use crate::math::{Equation, Matrix};
 
 #[derive(Debug)]
 pub struct Petrinet<'a> {
@@ -135,7 +135,7 @@ impl<'a> InstanciedPetrinet<'a> {
 mod test {
 
     use super::*;
-    use crate::{math::Vector, petrinet::equation::Equation};
+    use crate::math::Vector;
 
     #[test]
     fn test_petrinet_computed_values_1() {

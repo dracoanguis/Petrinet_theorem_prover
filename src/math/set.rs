@@ -1,4 +1,4 @@
-use std::{collections::HashSet, vec};
+use std::{collections::HashSet};
 
 use super::{NNumber, Vector};
 
@@ -105,6 +105,10 @@ impl Set {
             }
         }
         Self { data: n_data }
+    }
+
+    pub fn len(&self) -> usize {
+        self.data.len()
     }
 }
 

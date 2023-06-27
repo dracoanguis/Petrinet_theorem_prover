@@ -6,32 +6,114 @@ use std::collections::HashSet;
 use super::arc::*;
 use super::invariant::*;
 
-use crate::math::{Equation, Matrix};
+use crate::math::{Matrix};
 
+/// A Petrinet 
+/// 
+/// # Examples
+/// ``` rust
+/// 
+/// use petrinet_theorem_prover::petrinet::*;
+/// 
+/// let places = Place::new_default_vec(4);
+/// let transitions = Transition::new_default_vec(5);
+/// let pre_arcs = vec![
+///     places[0].link_cost_1(&transitions[0]),
+///     places[1].link_cost_1(&transitions[1]),
+///     places[2].link_cost_1(&transitions[2]),
+///     places[2].link_cost_1(&transitions[3]),
+///     places[3].link_cost_1(&transitions[4]),
+/// ];
+/// let post_arcs = vec![
+///     transitions[0].link_gain_1(&places[1]),
+///     transitions[1].link_gain_1(&places[2]),
+///     transitions[2].link_gain_1(&places[0]),
+///     transitions[3].link_gain_1(&places[3]),
+///     transitions[4].link_gain_1(&places[2]),
+/// ];
+/// let petri2 = Petrinet::new(
+///     "Petri2".to_string(),
+///     &places,
+///     &transitions,
+///     pre_arcs,
+///     post_arcs,
+/// );
+/// ```
 #[derive(Debug)]
 pub struct Petrinet<'a> {
+    /// Identifier of the net
     pub name: String,
+    /// The list of every places in the net
     pub places: &'a Vec<Place>,
+    /// The list of every transitions in the net
     pub transitions: &'a Vec<Transition>,
+    /// The list of all the Pre-Arc (place to Transition arc) int the net
     pub pre_arcs: Vec<Arc<'a>>,
+    /// The list of all the Post-Arc (Transition to Place arc) int the net
     pub post_arcs: Vec<Arc<'a>>,
 
+    /// The input matrix of the net
     pub in_matrix: Matrix,
+    /// The Output matrix of the net
     pub out_matrix: Matrix,
+    /// The incidence matrix of the net
     pub incidence_matrix: Matrix,
+    /// The computed P-Invariant
     pub invariants: Option<Vec<Invariant<'a>>>,
 }
 
+/// A marking of a certain petrinet
 pub type Marking<'a> = HashMap<&'a Place, usize>;
 
+/// A Petrinet instanciated with a marking
+/// 
+/// # Examples
+/// ``` rust
+/// 
+/// use petrinet_theorem_prover::petrinet::*;
+/// 
+/// let places = Place::new_default_vec(4);
+/// let transitions = Transition::new_default_vec(5);
+/// let pre_arcs = vec![
+///     places[0].link_cost_1(&transitions[0]),
+///     places[1].link_cost_1(&transitions[1]),
+///     places[2].link_cost_1(&transitions[2]),
+///     places[2].link_cost_1(&transitions[3]),
+///     places[3].link_cost_1(&transitions[4]),
+/// ];
+/// let post_arcs = vec![
+///     transitions[0].link_gain_1(&places[1]),
+///     transitions[1].link_gain_1(&places[2]),
+///     transitions[2].link_gain_1(&places[0]),
+///     transitions[3].link_gain_1(&places[3]),
+///     transitions[4].link_gain_1(&places[2]),
+/// ];
+/// let petri2 = Petrinet::new(
+///     "Petri2".to_string(),
+///     &places,
+///     &transitions,
+///     pre_arcs,
+///     post_arcs,
+/// );
+/// 
+/// let mark = petri2
+///     .new_marking(vec![("P0", 1), ("P1", 1), ("P2", 1), ("P3", 1)])
+///     .unwrap();
+/// 
+/// let i_petri2 = petri2.instanciate(mark);
+/// ```
 #[derive(Debug)]
 pub struct InstanciedPetrinet<'a> {
+    /// The referred petrinet
     pub petrinet: &'a Petrinet<'a>,
+    /// The current state of the petrinet
     pub marking: Marking<'a>,
+    /// The Invariant equations of the petrinet
     pub i_invariants: HashSet<InstanciedInvariant<'a>>,
 }
 
 impl<'a> Petrinet<'a> {
+    /// Creates a new petrinet from the given inputs
     pub fn new(
         name: String,
         places: &'a Vec<Place>,
@@ -93,6 +175,10 @@ impl<'a> Petrinet<'a> {
         }
     }
 
+    /// Generate a new marking over the given petrinet 
+    /// 
+    /// The marking parameter is a vector of the place names and the token in them.
+    /// The marking must be total.
     pub fn new_marking(&self, marking: Vec<(&str, usize)>) -> Option<Marking> {
         let mut r_m: Marking = HashMap::new();
 
@@ -106,12 +192,14 @@ impl<'a> Petrinet<'a> {
         Some(r_m)
     }
 
+    /// Create the instanciated petrinet from the current net and the given marking which must be created over the current petrinet
     pub fn instanciate(&'a self, marking: Marking<'a>) -> InstanciedPetrinet<'a> {
         InstanciedPetrinet::new(self, marking)
     }
 }
 
 impl<'a> InstanciedPetrinet<'a> {
+    /// Creates a new InstanciedPetrinet from the given input
     pub fn new(petrinet: &'a Petrinet, marking: Marking<'a>) -> Self {
         match &petrinet.invariants {
             Some(invs) => {
@@ -278,7 +366,7 @@ mod test {
             i_petri2
                 .i_invariants
                 .iter()
-                .map(|ii| ii.solve().len())
+                .map(|ii| ii.true_solve().len())
                 .sum::<usize>(),
             35
         );

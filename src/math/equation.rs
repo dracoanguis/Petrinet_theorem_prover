@@ -95,7 +95,7 @@ impl Equation<isize> for BasicEquation {
                     }
                     .solve();
 
-                    sols.extend(sub_sols.drain().map(|v| v.set_at(i, s)));
+                    sols.extend(sub_sols.drain().map(|v| v.set_at(i, s*s_f)));
                 }
                 break;
             }

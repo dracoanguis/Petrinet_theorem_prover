@@ -20,16 +20,12 @@ impl Set {
         for vect in input_set {
             data.push(Vector::new_0_into_n(vect));
         }
-        let s = Self { data };
-        // println!("{}", &s);
-        s
+        Self { data }
     }
 
     /// Creates a Set from a vec of Vector over NNumbers
     pub fn new_from_vec(data: Vec<Vector<NNumber>>) -> Self {
-        let s = Self { data };
-        println!("{}", s);
-        s
+        Self { data }
     }
 
     /// Creates a Set from a HashSet
